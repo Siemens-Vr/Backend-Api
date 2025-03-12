@@ -9,8 +9,8 @@ const {
 
 const router = express.Router();
 
-router.post("/", createMilestone);         
-router.get("/", getAllMilestones);         
+router.post("/:projectId", createMilestone);         
+router.get("/:projectId", getAllMilestones);         
 router.get("/:uuid", getMilestoneById);    
 router.put("/update/:uuid", updateMilestone);     
 router.delete("/delete/:uuid", deleteMilestone);  

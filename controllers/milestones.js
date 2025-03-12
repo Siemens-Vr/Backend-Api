@@ -3,15 +3,16 @@ const path=require('path')
 
 // Create a new milestone
 module.exports.createMilestone = async (req, res) => {
+  const {projectId} = req.params
   try {
-    const { name, startDate, endDate, status, projectId } = req.body;
+    const { name, startDate, endDate, status } = req.body;
 
     const milestone = await Milestone.create({
       name,
       startDate,
       endDate,
       status,
-      projectId, // Ensure projectId is provided
+      projectId
     });
 
     res.status(201).json({ message: "Milestone created successfully", milestone });
@@ -22,8 +23,9 @@ module.exports.createMilestone = async (req, res) => {
 
 // Get all milestones
 module.exports.getAllMilestones = async (req, res) => {
+  const {projectId} = req.params
   try {
-    const milestones = await Milestone.findAll();
+    const milestones = await Milestone.findAll({where: {projectId : projectId}});
 
     res.status(200).json(milestones);
   } catch (error) {

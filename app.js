@@ -111,8 +111,8 @@ app.use('/weeks',weekRouter);
 app.use('/materials',materialRouter);
 app.use('/applicants', applicantsRouter)
 app.use('/reports', reportRouter)
-app.use('/milestone', milestoneRouter)
-app.use('/output', outputRouter)
+app.use('/milestones', milestoneRouter)
+app.use('/outputs', outputRouter)
 
 // Test route to verify server is running
 app.get("/", (req, res) => {

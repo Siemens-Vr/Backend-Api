@@ -5,8 +5,6 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const LocalStrategy = require('passport-local').Strategy;
 
-// const sendResetEmail = require('../mail/mailer')
-const {sendPasswordResetEmail, sendResetSuccessEmail} = require('../mail/emails')
 
 const dotenv = require('dotenv');
 dotenv.config()

@@ -3,7 +3,7 @@ const { Op , Sequelize } = require('sequelize');
 const Joi = require('joi');
 const fs = require('fs');
 const path = require('path');
-const { message } = require("../validation/documentValidation");
+
 
 function getOperatorForType(type, value) {
   if (type instanceof Sequelize.STRING) {
@@ -287,24 +287,6 @@ try {
 
 
 
-  module.exports.search = async (req, res) => {
-    try {
-      const { PvNo, claimNumber, amountClaimed, destination , description} = req.query;
-      const conditions = {};
-  
-      if (PvNo) conditions.PvNo = { [Op.like]: `%${PvNo}%` };
-      if (claimNumber) conditions.claimNumber = { [Op.like]: `%${claimNumber}%` };
-      if (amountClaimed) conditions.amountClaimed = amountClaimed;
-      // if (suppliers) conditions.suppliers = { [Op.like]: `%${suppliers}%` };
-      if (project) conditions.project = { [Op.like]: `%${project}%` };
-  
-      const foundTransports = await Transport.findAll({ where: conditions });
-  
-      res.status(200).json(foundTransports);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
   
   // Delete a transport request
    module.exports.deleteTransport = async (req, res) => {

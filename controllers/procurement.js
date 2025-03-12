@@ -1,21 +1,11 @@
 const { Procurement } = require('../models');
-const validateSupplier = require('../validation/supplierValidation');
 const { Op , Sequelize } = require('sequelize');
-const { upload } = require('../middleware/fileUploadMiddleware');
-const Joi = require('joi');
 const fs = require('fs');
 const path = require('path');
-const { message } = require('../validation/documentValidation');
 
 
-const uuidSchema = Joi.string()
-  .guid({ version: ['uuidv4'] })
-  .required()
-  .messages({
-    'string.base': 'UUID must be valid.',
-    'string.guid': 'UUID must be a valid UUID.',
-    'any.required': 'UUID is required.'
-  });
+
+
 
 function getOperatorForType(type, value) {
   if (type instanceof Sequelize.STRING) {
@@ -230,40 +220,6 @@ module.exports.updateProcurement = async (req, res) => {
     console.error('Error updating supplier:', error);
     res.status(500).json({ error: 'Error updating supplier', details: error.message });
   }
-};
-
-// module.exports.search = async (req, res) => {
-//    try {
-//     const { PvNo, claimNumber, amountClaimed, suppliers , itemName} = req.query;
-//     console.log(req.body);
-//     const conditions = {};
-
-//     if (PvNo) conditions.PvNo = { [Op.like]: `%${PvNo}%` };
-//     if (claimNumber) conditions.claimNumber = { [Op.like]: `%${claimNumber}%` };
-//     if (amountClaimed) conditions.amountClaimed = amountClaimed;
-//     if (suppliers) conditions.suppliers = { [Op.like]: `%${suppliers}%` };
-//     if (itemName) conditions.itemName = { [Op.like]: `%${itemName}%` };
-
-//     const foundSuppliers = await Procurement.findAll({ where: conditions });
-
-//     res.status(200).json(foundSuppliers);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-
-//  };
-
-
-
- 
-
-// module.exports.deleteProjectProcurement = async (req, res)=>{
-//   console.log("You bitches")
-// }
-
-module.exports.filter = (req, res) => {
-  console.log("Hello, World!"); // Prints to the console
-  res.status(200).json({ message: "Hello, World!" }); // Sends response to the user
 };
 
 

@@ -9,10 +9,10 @@ const {
 } = require('../controllers/output');
 
 // Define routes
-router.post('/outputs', createOutput);
-router.get('/', getAllOutputs);
-router.get('/outputs/:id', getOutputById);
-router.put('/outputs/:id', updateOutputById);
-router.delete('/outputs/:id', deleteOutputById);
+router.post('/:milestoneId', createOutput);
+router.get('/:milestoneId', getAllOutputs);
+router.get('/:milestoneId/:id', getOutputById);
+router.put('/:milestoneId/:id', updateOutputById);
+router.delete('/:milestoneId/:id', deleteOutputById);
 
 module.exports = router;

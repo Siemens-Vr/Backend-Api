@@ -2,8 +2,9 @@ const { Output } = require('../models');
 
 // Create a new Output
 const createOutput = async (req, res) => {
+  const {milestoneId} = req.params
   try {
-    const { name, description, completionDate, status, milestoneId } = req.body;
+    const { name, description, completionDate, statu } = req.body;
     const output = await Output.create({ name, description, completionDate, status, milestoneId });
     res.status(201).json(output);
   } catch (error) {

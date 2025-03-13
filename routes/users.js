@@ -7,6 +7,8 @@ const {isAdmin} = require('../middleware/isAdmin')
 const { login, signUp , profile, getUsers, refreshToken,approveUser, forgotPass,getPendingUsers, resetPassword} = require('../controllers/users')
 
 // const isAuthenticated = require('../middleware/isAuthenticated');
+ 
+  
 
  
 userRouter.get('/', getUsers)

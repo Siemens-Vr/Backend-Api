@@ -1,6 +1,6 @@
 const { Procurement } = require('../models');
 const { Op , Sequelize } = require('sequelize');
-const fs = require('fs');
+const fs = require('fs').promises
 const path = require('path');
 
 
@@ -226,43 +226,95 @@ module.exports.updateProcurement = async (req, res) => {
 
 
 
-module.exports.deleteProcurement= async (req, res) => {
+// module.exports.deleteProcurement= async (req, res) => {
+//   const { id } = req.params;
+// console.log(id)
+// console.log("running")
+//   try {
+//     const procurement = await Procurement.findOne({ where: { uuid: id } });
+
+//     if (!procurement) {
+//       return res.status(404).json({ message: 'Procurement not found' });
+//     }
+
+//     // Helper function to delete files
+//     const deleteOldFile = (folder, oldFilePath) => {
+//       if (!oldFilePath) return;
+//       const oldFileName = path.basename(oldFilePath);
+//       const oldFileFullPath = path.join(__dirname, `../uploads/${folder}/${oldFileName}`);
+
+//       // Check if file exists before deleting
+//       if (fs.existsSync(oldFileFullPath)) {
+//         fs.unlinkSync(oldFileFullPath);
+//         console.log(`Deleted file: ${oldFileFullPath}`);
+//       } else {
+//         console.log(`File not found: ${oldFileFullPath}`);
+//       }
+//     };
+
+//     // Delete associated files
+//     if (procurement.document) {
+//       deleteOldFile('procurements', procurement.document);
+//     }
+
+//     // Delete the procurement record
+//     await procurement.destroy();
+
+//     return res.status(200).json({ message: "Procurement record and associated files successfully deleted" });
+//   } catch (error) {
+//     console.error('Error deleting Procurement:', error);
+//     return res.status(500).json({ error: 'Error deleting Procurement', details: error.message });
+//   }
+// };
+
+
+
+
+  
+module.exports.deleteProcurement = async (req, res) => {
   const { id } = req.params;
-console.log(id)
-console.log("running")
+  console.log(`Deleting procurement with UUID: ${id}`);
+
   try {
+    // Find the procurement by UUID
     const procurement = await Procurement.findOne({ where: { uuid: id } });
 
     if (!procurement) {
       return res.status(404).json({ message: 'Procurement not found' });
     }
 
-    // Helper function to delete files
-    const deleteOldFile = (folder, oldFilePath) => {
-      if (!oldFilePath) return;
-      const oldFileName = path.basename(oldFilePath);
-      const oldFileFullPath = path.join(__dirname, `../uploads/${folder}/${oldFileName}`);
+    // Helper function to delete a file
+    const deleteFile = async (filePath) => {
+      if (!filePath) return;
 
-      // Check if file exists before deleting
-      if (fs.existsSync(oldFileFullPath)) {
-        fs.unlinkSync(oldFileFullPath);
-        console.log(`Deleted file: ${oldFileFullPath}`);
-      } else {
-        console.log(`File not found: ${oldFileFullPath}`);
+      const fileName = path.basename(filePath);
+      const fullPath = path.join(__dirname, '../uploads/procurements', fileName);
+
+      try {
+        await fs.access(fullPath); // Check if file exists
+        await fs.unlink(fullPath); // Delete the file
+        console.log(`Deleted file: ${fullPath}`);
+      } catch (err) {
+        if (err.code === 'ENOENT') {
+          console.warn(`File not found, skipping: ${fullPath}`);
+        } else {
+          console.error(`Error deleting file: ${fullPath}`, err);
+        }
       }
     };
 
-    // Delete associated files
-    if (procurement.document) {
-      deleteOldFile('procurements', procurement.document);
-    }
+    // Delete associated files (document)
+    await deleteFile(procurement.document);
 
-    // Delete the procurement record
+    // Delete the procurement record from the database
     await procurement.destroy();
 
-    return res.status(200).json({ message: "Procurement record and associated files successfully deleted" });
+    return res.status(200).json({ message: 'Procurement record and associated files successfully deleted' });
   } catch (error) {
     console.error('Error deleting Procurement:', error);
-    return res.status(500).json({ error: 'Error deleting Procurement', details: error.message });
+    return res.status(500).json({
+      error: 'Error deleting Procurement',
+      details: error.message,
+    });
   }
 };

@@ -30,6 +30,8 @@ function isSearchableType(type) {
          type instanceof Sequelize.BOOLEAN ||
          type instanceof Sequelize.DATE;
 }
+
+
 module.exports.getProcurements = async (req, res) => {
   const { outputId } = req.params;
   try {

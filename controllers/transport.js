@@ -131,7 +131,8 @@ try {
   // Get a single transport request by ID
   module.exports.getTransportById = async (req, res) => {
     try {
-      const transport = await Transport.findByPk(req.params.id);
+      // const transport = await Transport.findByPk(req.params.id);
+      const transport = await Transport.findOne({ where: { id: req.params.id } }); 
       if (!transport) {
         return res.status(404).json({ message: 'Transport request not found' });
       }
@@ -283,15 +284,11 @@ try {
 };
 
 
-
-
-
-
-  
   // Delete a transport request
    module.exports.deleteTransport = async (req, res) => {
     try {
-      const transport = await Transport.findOne({ where: { uuid: req.params.id } }); // Use UUID lookup
+      console.log("Deleting transport with UUID:", req.params.id);
+      const transport = await Transport.findOne({ where: { id: req.params.id } }); // Use UUID lookup
       if (!transport) {
         return res.status(404).json({ message: "Transport request not found" });
       }
@@ -303,4 +300,25 @@ try {
       res.status(500).json({ error: error.message });
     }
   };
+  // module.exports.deleteTransport = async (req, res) => {
+  //   try {
+  //     console.log("Received ID for deletion:", req.params.id);
+  
+  //     const transport = await Transport.findOne({ where: { uuid: req.params.id } });
+  
+  //     if (!transport) {
+  //       console.log("Transport not found in DB for UUID:", req.params.id);
+  //       return res.status(404).json({ message: "Transport request not found" });
+  //     }
+  
+  //     await transport.destroy();
+  //     console.log("Transport successfully deleted:", req.params.id);
+  
+  //     return res.status(200).json({ message: "Transport deleted successfully" });
+  //   } catch (error) {
+  //     console.error("Error deleting transport:", error.message);
+  //     res.status(500).json({ error: error.message });
+  //   }
+  // };
+  
   

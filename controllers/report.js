@@ -54,6 +54,26 @@ module.exports.createReports = async (req, res) => {
   }
 };
 
+// ✅ CREATE REPORT
+// module.exports.createReports = async (req, res) => {
+//   console.log(req.body);
+//   const { outputId } = req.params;
+//   const files = req.files || {};
+
+//   try {
+//     const report = await Report.create({
+//       outputId,
+//       document: files.report ? `/uploads/reports/${files.report[0].filename}` : null,
+//       documentName: files.report ? files.report[0].originalname : null,
+//     });
+
+//     return res.status(201).json({ message: "Report uploaded successfully", report });
+//   } catch (error) {
+//     console.error('Error creating report:', error.message);
+//     return res.status(500).json({ error: 'Error creating report', details: error.message });
+//   }
+// };
+
 
 module.exports.getRecordById = async (req, res) => {
   const { id } = req.params;

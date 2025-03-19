@@ -1,14 +1,26 @@
-const { Sequelize, Model } = require('sequelize');
+'use strict';
+const { Model, DataTypes } = require('sequelize');
 
-// models/RefreshToken.js
-module.exports = (sequelize, DataTypes) => {
-    const RefreshToken = sequelize.define('RefreshToken', {
-    uuid: {
+module.exports = (sequelize) => {
+  class RefreshToken extends Model {
+    static associate(models) {
+      RefreshToken.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'user',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      });
+    }
+  }
+
+  RefreshToken.init(
+    {
+      uuid: {
+        type: DataTypes.UUID,
         primaryKey: true,
         allowNull: false,
-        type: DataTypes.UUID,
-        defaultValue:Sequelize.literal('uuid_generate_v4()'),
-        },
+        defaultValue: sequelize.literal('uuid_generate_v4()'),
+      },
       token: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -16,18 +28,36 @@ module.exports = (sequelize, DataTypes) => {
       userId: {
         type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: 'Users', // Ensure this matches your Users model table name
+          key: 'uuid',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       expiresAt: {
         type: DataTypes.DATE,
         allowNull: false,
       },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal('NOW()'),
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: sequelize.literal('NOW()'),
+      },
+    },
+    {
+      sequelize,
+      modelName: 'RefreshToken',
       schema: 'users', 
-    });
-  
-    RefreshToken.associate = (models) => {
-      RefreshToken.belongsTo(models.User, { foreignKey: 'userId' });
-    };
-  
-    return RefreshToken;
-  };
-  
+      tableName: 'RefreshTokens',
+      timestamps: true,
+    }
+  );
+
+  return RefreshToken;
+};

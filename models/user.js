@@ -1,54 +1,99 @@
 'use strict';
-const {
-  Model,
-  STRING
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+const { Model, DataTypes } = require('sequelize');
+
+module.exports = (sequelize) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // Define associations here
     }
   }
-  User.init({
-    uuid: {
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      type: DataTypes.UUID,
-    },
-    firstName: {
-      type:DataTypes.STRING,
-      allowNull:false
-    },
-    lastName:{
-      type: DataTypes.STRING,
-      allowNull:false
-    },
-    role:{
-      type: DataTypes.ENUM('admin', 'student', 'equipment'),
-      allowNull: false,
-      defaultValue: 'student',
-    },
 
-    email: DataTypes.STRING,
-    password:{
-      type:DataTypes.STRING,
-      allowNull:false,
+  User.init(
+    {
+      uuid: {
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        type: DataTypes.UUID,
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      gender: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      idNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+      dateJoined: {
+        type: DataTypes.DATEONLY,
+        allowNull: true,
+      },
+      isDefaultPassword: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      type: {
+        type: DataTypes.ENUM('Staff', 'Admin'),
+        allowNull: false,
+        defaultValue: 'Staff',
+      },
+      role: {
+        type: DataTypes.ENUM('Admin', 'Project', 'Student', 'Equipment', 'Staff'),
+        allowNull: false,
+        defaultValue: 'Staff',
+      },
+      isApproved: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      resetPasswordToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      resetPasswordExpiresAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
     },
-    isActive:{
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
+    {
+      sequelize,
+      modelName: 'User',
+      schema: 'users',
+      timestamps: true,
     }
+  );
 
-  }, {
-    sequelize,
-    modelName: 'User',
-    schema: 'users',
-  });
   return User;
 };

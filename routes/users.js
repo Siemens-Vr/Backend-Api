@@ -9,13 +9,13 @@ const { login, signUp , profile, getUsers, refreshToken,approveUser, forgotPass,
 // const isAuthenticated = require('../middleware/isAuthenticated');
 
  
-userRouter.get('/', getUsers)
+// userRouter.get('/', getUsers)
 userRouter.post('/signup',verifyToken, signUp)
 userRouter.post('/login', login)
 userRouter.get('/unApproved', getPendingUsers)
 userRouter.get('/:id/approved', approveUser)
 userRouter.post('/refresh-token', verifyToken, refreshToken); 
-userRouter.get('/profile',  verifyToken, profile)
+// userRouter.get('/profile',  verifyToken, profile)
 userRouter.post('/forgotPassword',  forgotPass)
 
 /**

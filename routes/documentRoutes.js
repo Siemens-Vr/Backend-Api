@@ -12,18 +12,18 @@ const {
 const upload = require('../middleware/uploadMiddleware');
 
 // Create document
-router.post('/:projectUuid/:folderUuid?/:subFolderUuid?', upload.single('file'), createDocument);
-// router.post('/:projectUuid/folders/:folderUuid', upload.single('file'), createDocument);
-// router.post('/:projectUuid/folders/:folderUuid/subfolders/:subFolderUuid', upload.single('file'), createDocument);
-router.put('/:projectUuid/:documentUuid/:folderUuid?/:subFolderUuid?', upload.single('file'), updateDocument);
-router.get('/:projectUuid/folders', getAllDocumentsAndFolders);
-router.get('/:projectUuid/:folderUuid?', getAllDocuments);
-// router.get('/:projectUuid/:subFolderUuid', getDocumentsInSubfolder);
-router.get('/:projectUuid/:folderUuid/:subFolderUuid', getDocumentsInSubfolder);
+router.post('/:outputUuid/:folderUuid?/:subFolderUuid?', upload.single('file'), createDocument);
+// router.post('/:outputUuid/folders/:folderUuid', upload.single('file'), createDocument);
+// router.post('/:outputUuid/folders/:folderUuid/subfolders/:subFolderUuid', upload.single('file'), createDocument);
+router.put('/:outputUuid/:documentUuid/:folderUuid?/:subFolderUuid?', upload.single('file'), updateDocument);
+router.get('/:outputUuid/folders', getAllDocumentsAndFolders);
+router.get('/:outputUuid/:folderUuid?', getAllDocuments);
+// router.get('/:outputUuid/:subFolderUuid', getDocumentsInSubfolder);
+router.get('/:outputUuid/:folderUuid/:subFolderUuid', getDocumentsInSubfolder);
 
-router.get('/:projectUuid', getAllDocumentsAndFolders);
-// router.get('/:projectUuid/folders/:folderUuid/subfolders/:subFolderUuid', getAllDocuments);
-router.get('/:projectUuid/:documentUuid', getDocumentById);
-router.delete('/:projectUuid/:documentUuid/:folderUuid?/:subFolderUuid?', deleteDocument);
+// router.get('/:outputUuid', getAllDocumentsAndFolders);
+// router.get('/:outputUuid/folders/:folderUuid/subfolders/:subFolderUuid', getAllDocuments);
+router.get('/:outputUuid/:documentUuid', getDocumentById);
+router.delete('/:outputUuid/:documentUuid/:folderUuid?/:subFolderUuid?', deleteDocument);
 
 module.exports = router;

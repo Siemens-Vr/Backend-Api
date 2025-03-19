@@ -1,4 +1,4 @@
-const { Document, Project, Folder, SubFolder, sequelize } = require('../models');
+const { Document, Project, Folder,Output, SubFolder, sequelize } = require('../models');
 const documentValidation = require('../validation/documentValidation');
 const path = require('path');
 const fs = require('fs').promises;
@@ -6,28 +6,27 @@ const { Op } = require('sequelize');
 
 // Create a new document with file upload
 exports.createDocument = async (req, res) => {
-  console.log(req.file);
-  console.log(req.params);  
 
-  const { projectUuid, folderUuid, subFolderUuid } = req.params;
+
+  const { outputUuid, folderUuid, subFolderUuid } = req.params;
   const file = req.file;  
 
   if (!file) return res.status(400).json({ error: 'No file uploaded' });
 
   try {
-    const project = await Project.findOne({ where: { uuid: projectUuid } });
-    if (!project) return res.status(404).json({ error: 'Project not found' });
+    const output = await Output.findOne({ where: { uuid: outputUuid } });
+    if (!output) return res.status(404).json({ error: 'output not found' });
 
     let folderId = null;
     let subFolderId = null;
 
     if (folderUuid) {
-      const folder = await Folder.findOne({ where: { uuid: folderUuid, projectId: projectUuid } });
+      const folder = await Folder.findOne({ where: { uuid: folderUuid, outputId: outputUuid } });
       if (!folder) return res.status(404).json({ error: 'Folder not found' });
       folderId = folder.uuid;
 
       if (subFolderUuid) {
-        const subFolder = await SubFolder.findOne({ where: { uuid: subFolderUuid, projectId: projectUuid } });
+        const subFolder = await SubFolder.findOne({ where: { uuid: subFolderUuid, outputId: outputUuid } });
         if (!subFolder) return res.status(404).json({ error: 'SubFolder not found' });
         subFolderId = subFolder.uuid;
       }
@@ -35,7 +34,7 @@ exports.createDocument = async (req, res) => {
 
     // Create the document for the single file uploaded
     const document = await Document.create({
-      projectId: project.uuid,
+      outputId: output.uuid,
       folderId,
       subFolderId,
       documentPath: file.path,
@@ -51,9 +50,7 @@ exports.createDocument = async (req, res) => {
   }
 };
 
-exports.createFolderDocument = async(req, res)=>{
-  
-}
+
 
 // Update a document by its UUID and project UUID
 exports.updateDocument = async (req, res) => {
@@ -111,17 +108,18 @@ exports.updateDocument = async (req, res) => {
 
 exports.getAllDocuments = async (req, res) => {
   try {
-    const { projectUuid, folderUuid, subFolderUuid } = req.params;
+    const { outputUuid, folderUuid, subFolderUuid } = req.params;
 
-    // Fetch the project by UUID
-    const project = await Project.findOne({ where: { uuid: projectUuid } });
-    if (!project) return res.status(404).json({ error: 'Project not found' });
+    // Fetch the output by UUID
+    const output = await Output.findOne({ where: { uuid: outputUuid } });
+    console.log(output)
+    if (!output) return res.status(404).json({ error: 'output not found' });
 
-    let whereClause = { projectId: projectUuid };
+    let whereClause = { outputId: outputUuid };
 
     // Check if a folder UUID is provided
     if (folderUuid) {
-      const folder = await Folder.findOne({ where: { uuid: folderUuid, projectId: projectUuid } });
+      const folder = await Folder.findOne({ where: { uuid: folderUuid, outputId: outputUuid } });
       if (!folder) return res.status(404).json({ error: 'Folder not found' });
 
       // Add the folderId to the whereClause
@@ -143,7 +141,10 @@ exports.getAllDocuments = async (req, res) => {
       }
 
       // Fetch the documents with the constructed whereClause
-      const documents = await Document.findAll({
+      const documents = await Document.findAll({ attributes: [
+        'id', 'uuid', 'outputId', 'folderId', 'subFolderId', 
+        'documentPath', 'documentName', 'createdAt', 'updatedAt' // Remove 'projectId'
+      ],
         where: whereClause
       });
 
@@ -164,24 +165,27 @@ exports.getAllDocuments = async (req, res) => {
 exports.getAllDocumentsAndFolders = async (req, res) => {
   try {
     console.log(req.params)
-    const { projectUuid } = req.params;
+    const { outputUuid } = req.params;
 
     // Fetch the project by UUID
-    const project = await Project.findOne({ where: { uuid: projectUuid } });
-    if (!project) return res.status(404).json({ error: 'Project not found' });
+    const output = await Output.findOne({ where: { uuid: outputUuid } });
+    if (!output) return res.status(404).json({ error: 'output not found' });
 
-    // Fetch all folders associated with the project
-    const folders = await Folder.findAll({ where: { projectId: projectUuid } });
+    // Fetch all folders associated with the output
+    const folders = await Folder.findAll({ where: { outputId: outputUuid } });
 
     // Create a where clause to find documents with both folderId and subFolderId null
     const documentWhereClause = {
-      projectId: projectUuid,
+      outputId: outputUuid,
       folderId: null,
       subFolderId: null
     };
 
     // Fetch documents with projectId and both folderId and subFolderId set to null
-    const documents = await Document.findAll({ where: documentWhereClause });
+    const documents = await Document.findAll({ attributes: [
+      'id', 'uuid', 'outputId', 'folderId', 'subFolderId', 
+      'documentPath', 'documentName', 'createdAt', 'updatedAt' // Remove 'projectId'
+    ], where: documentWhereClause });
 
     // Return both documents and folders
     return res.status(200).json({
@@ -199,14 +203,14 @@ exports.getAllDocumentsAndFolders = async (req, res) => {
 
 exports.getDocumentsInSubfolder = async (req, res) => {
   try {
-    const { projectUuid, folderUuid, subFolderUuid } = req.params;
+    const { outputUuid, folderUuid, subFolderUuid } = req.params;
 
-    // Validate project
-    const project = await Project.findOne({ where: { uuid: projectUuid } });
-    if (!project) return res.status(404).json({ error: 'Project not found' });
+    // Validate output
+    const output = await Output.findOne({ where: { uuid: outputUuid } });
+    if (!output) return res.status(404).json({ error: 'output not found' });
 
     // Validate folder or subFolder
-    let folder = await Folder.findOne({ where: { uuid: folderUuid, projectId: project.uuid } });
+    let folder = await Folder.findOne({ where: { uuid: folderUuid, outputId: output.uuid } });
     if (!folder && subFolderUuid) {
       folder = await SubFolder.findOne({ where: { uuid: subFolderUuid } });
     }
@@ -216,17 +220,23 @@ exports.getDocumentsInSubfolder = async (req, res) => {
 
     // Fetch documents and subfolders
     if (subFolderUuid) {
-      const subFolder = await SubFolder.findOne({ where: { uuid: subFolderUuid, projectId: project.uuid } });
+      const subFolder = await SubFolder.findOne({ where: { uuid: subFolderUuid, outputId: output.uuid } });
       if (!subFolder) return res.status(404).json({ error: 'SubFolder not found' });
 
-      const documents = await Document.findAll({ where: { projectId: project.uuid, subFolderId: subFolderUuid } });
+      const documents = await Document.findAll({ attributes: [
+        'id', 'uuid', 'outputId', 'folderId', 'subFolderId', 
+        'documentPath', 'documentName', 'createdAt', 'updatedAt' // Remove 'projectId'
+      ], where: { outputId: output.uuid, subFolderId: subFolderUuid } });
       const nestedSubFolders = await SubFolder.findAll({ where: { subFolderId: subFolderUuid } });
       // console.log(documents)
       return res.status(200).json({ status: "ok", data:documents, subFolders: nestedSubFolders });
     } else {
       const subFolders = await SubFolder.findAll({ where: { folderId: folder.uuid } });
-      const documents = await Document.findAll({
-        where: { projectId: project.uuid, folderId: folder.uuid, subFolderId: { [Op.is]: null } },
+      const documents = await Document.findAll({ attributes: [
+        'id', 'uuid', 'outputId', 'folderId', 'subFolderId', 
+        'documentPath', 'documentName', 'createdAt', 'updatedAt' // Remove 'projectId'
+      ],
+        where: { outputId: output.uuid, folderId: folder.uuid, subFolderId: { [Op.is]: null } },
       });
         // console.log(documents)
       return res.status(200).json({ status: "ok", data:documents, subFolders });
@@ -240,16 +250,16 @@ exports.getDocumentsInSubfolder = async (req, res) => {
 
 
 
-// Get a specific document by its UUID and project UUID
+// Get a specific document by its UUID and output UUID
 exports.getDocumentById = async (req, res) => {
   try {
-    const { projectUuid, documentUuid } = req.params;
+    const { outputUuid, documentUuid } = req.params;
 
-    const project = await Project.findOne({ where: { uuid: projectUuid } });
-    if (!project) return res.status(404).json({ error: 'Project not found' });
+    const output = await Output.findOne({ where: { uuid: outputUuid } });
+    if (!output) return res.status(404).json({ error: 'output not found' });
 
     const document = await Document.findOne({
-      where: { uuid: documentUuid, projectId: projectUuid },
+      where: { uuid: documentUuid, outputId: outputUuid },
       include: [
         { model: Folder, as: 'folder' },
         { model: SubFolder, as: 'subFolder' }
@@ -264,16 +274,16 @@ exports.getDocumentById = async (req, res) => {
   }
 };
 
-// Delete a document by its UUID and project UUID
+// Delete a document by its UUID and output UUID
 exports.deleteDocument = async (req, res) => {
   try {
-    const { projectUuid, documentUuid } = req.params;
+    const { outputUuid, documentUuid } = req.params;
 
-    const project = await Project.findOne({ where: { uuid: projectUuid } });
-    if (!project) return res.status(404).json({ error: 'Project not found' });
+    const output = await output.findOne({ where: { uuid: outputUuid } });
+    if (!output) return res.status(404).json({ error: 'output not found' });
 
     const document = await Document.findOne({
-      where: { uuid: documentUuid, projectId: projectUuid },
+      where: { uuid: documentUuid, outputId: outputUuid },
     });
     if (!document) return res.status(404).json({ error: 'Document not found' });
 

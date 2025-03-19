@@ -79,7 +79,7 @@ app.use((req, res, next) => {
   
 
 // Public Route: No authentication required for this route
-app.use('/users', userRouter);
+app.use('/api/auth', userRouter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/staffUploads', express.static(path.join(__dirname, 'staffUploads')));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

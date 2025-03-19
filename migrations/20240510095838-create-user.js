@@ -118,6 +118,6 @@ module.exports = {
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable({ schema: 'users', tableName: 'Users' });
     await queryInterface.sequelize.query(`DROP TYPE IF EXISTS "users"."enum_Users_type" CASCADE`);
-  await queryInterface.sequelize.query(`DROP TYPE IF EXISTS "users"."enum_Users_role" CASCADE`);
+    await queryInterface.sequelize.query(`DROP TYPE IF EXISTS "users"."enum_Users_role" CASCADE`);
   },
 };

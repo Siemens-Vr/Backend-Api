@@ -37,6 +37,10 @@ const reportRouter = require('./routes/reports')
 const milestoneRouter=require('./routes/milestones')
 const outputRouter=require('./routes/output')
 
+const leaveRouter = require('./routes/leaves')
+
+// const leaveRouter=require('./routes/leave')
+
 
 const multer = require('multer');
 const fs = require('fs');
@@ -111,9 +115,11 @@ app.use('/weeks',weekRouter);
 app.use('/materials',materialRouter);
 app.use('/applicants', applicantsRouter)
 app.use('/reports', reportRouter)
+
+
 app.use('/milestones', milestoneRouter)
 app.use('/outputs', outputRouter)
-
+app.use('/leaves', leaveRouter)
 // Test route to verify server is running
 app.get("/", (req, res) => {
     res.send('Hello world');

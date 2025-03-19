@@ -36,8 +36,9 @@ module.exports.createFolder = async (req, res) => {
 
 module.exports.getFolders = async (req, res) => {
   try {
+    console.log("getting folders")
     const outputId = req.params.id;
-    console.log(outputId)
+    // console.log(outputId)
 
     // Fetch folders for the project
     const folders = await Folder.findAll({ where: { outputId } });

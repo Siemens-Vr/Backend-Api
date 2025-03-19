@@ -4,18 +4,21 @@ const { Output } = require('../models');
 const createOutput = async (req, res) => {
   const {milestoneId} = req.params
   try {
-    const { name, description, completionDate, statu } = req.body;
-    const output = await Output.create({ name, description, completionDate, status, milestoneId });
+    // const { name, description, completionDate, status } = req.body;
+    // const output = await Output.create({ name, description, completionDate, status, milestoneId });
+    const output = await Output.create({ ...req.body, milestoneId });
+
     res.status(201).json(output);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error });
   }
 };
 
 // Get all Outputs
 const getAllOutputs = async (req, res) => {
+  const {milestoneId} = req.params
   try {
-    const outputs = await Output.findAll();
+    const outputs = await Output.findAll({where : {milestoneId}});
     res.status(200).json(outputs);
   } catch (error) {
     res.status(500).json({ error: error.message });

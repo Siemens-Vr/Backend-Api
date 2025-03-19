@@ -45,10 +45,6 @@ module.exports = (sequelize) => {
           msg: 'Folder name must be unique within the project',
         },
       },
-      // description: {
-      //   type: DataTypes.STRING,
-      //   allowNull: true,
-      // },
       outputId: {
         type: DataTypes.UUID,
         allowNull: false,
@@ -60,17 +56,7 @@ module.exports = (sequelize) => {
           key: 'uuid'
         }
       },
-      // phaseId: {
-      //   type: DataTypes.UUID,
-      //   allowNull: true,
-      //   references: {
-      //     model: {
-      //       schema: 'projects',
-      //       tableName: 'Phases'
-      //     },
-      //     key: 'uuid'
-      //   }
-      // },
+
       
       createdAt: {
         type: DataTypes.DATE,

@@ -16,13 +16,14 @@ module.exports = (sequelize) => {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         allowNull: false,
-        primaryKey: true,
+        
       },
       uuid: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         unique: true,
         allowNull: false,
+        primaryKey: true,
       },
       outputId: {  // Updated reference to Output
         type: DataTypes.UUID,

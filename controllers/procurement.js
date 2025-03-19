@@ -226,49 +226,6 @@ module.exports.updateProcurement = async (req, res) => {
 
 
 
-// module.exports.deleteProcurement= async (req, res) => {
-//   const { id } = req.params;
-// console.log(id)
-// console.log("running")
-//   try {
-//     const procurement = await Procurement.findOne({ where: { uuid: id } });
-
-//     if (!procurement) {
-//       return res.status(404).json({ message: 'Procurement not found' });
-//     }
-
-//     // Helper function to delete files
-//     const deleteOldFile = (folder, oldFilePath) => {
-//       if (!oldFilePath) return;
-//       const oldFileName = path.basename(oldFilePath);
-//       const oldFileFullPath = path.join(__dirname, `../uploads/${folder}/${oldFileName}`);
-
-//       // Check if file exists before deleting
-//       if (fs.existsSync(oldFileFullPath)) {
-//         fs.unlinkSync(oldFileFullPath);
-//         console.log(`Deleted file: ${oldFileFullPath}`);
-//       } else {
-//         console.log(`File not found: ${oldFileFullPath}`);
-//       }
-//     };
-
-//     // Delete associated files
-//     if (procurement.document) {
-//       deleteOldFile('procurements', procurement.document);
-//     }
-
-//     // Delete the procurement record
-//     await procurement.destroy();
-
-//     return res.status(200).json({ message: "Procurement record and associated files successfully deleted" });
-//   } catch (error) {
-//     console.error('Error deleting Procurement:', error);
-//     return res.status(500).json({ error: 'Error deleting Procurement', details: error.message });
-//   }
-// };
-
-
-
 
   
 module.exports.deleteProcurement = async (req, res) => {

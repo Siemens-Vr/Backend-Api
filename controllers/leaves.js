@@ -66,7 +66,11 @@ module.exports.deleteLeave= async(req,res)=> {
      if(!Leave){
         res.status(404).json({message:"The record is not found"})
      }
-        
+     
+    //  Delete the leave if found
+     await Leave.destroy()  
+     res.status(200).json({message:"Leave deleted successfully"}) 
+
     } catch (error) {
         res.status(500).json({message:"Error deleting leave", error:error.message})
         

@@ -2,7 +2,7 @@
 const express=require('express')
 const router=express.Router();
 
-const {createLeave, updateLeave}=require('../controllers/leaves')
+const {createLeave, updateLeave, deleteLeave}=require('../controllers/leaves')
  
 
 router.get('/', (req,res)=>{
@@ -11,6 +11,6 @@ router.get('/', (req,res)=>{
 
 router.post('/:userUUID/create', createLeave);
 router.patch('/:userUUID/:id/update', updateLeave)
-// router.delete('/', deleteLeave)
+router.delete('/:userUUID/:id/delete', deleteLeave)
 
 module.exports=router;

@@ -10,11 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // Define association with users model
-      this.belongsTo(models.User, {
-        foreignKey: 'userUUID', 
-        targetKey: 'uuid', 
-        as:'userleaves'
-      });
+       
 
          // One-to-one relationship with LeaveRequest
          Leave.hasOne(models.LeaveRequest, {

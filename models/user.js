@@ -5,8 +5,20 @@ module.exports = (sequelize) => {
   class User extends Model {
     static associate(models) {
       // Define associations here
-    }
-  }
+
+
+            // One-to-one relationship with LeaveRequest
+            User.hasOne(models.LeaveRequest, {
+              foreignKey: 'userUUID',
+              as: 'leaveRequest',
+              onDelete: 'CASCADE',
+              onUpdate: 'CASCADE',
+            });
+          }
+        }
+      
+    
+  
 
   User.init(
     {

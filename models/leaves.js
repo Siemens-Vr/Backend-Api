@@ -11,10 +11,17 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // Define association with Facilitators model
       this.belongsTo(models.User, {
-        foreignKey: 'userUUID', // Assuming 'facilitatorUUID' is the foreign key in HoursWorked
+        foreignKey: 'userUUID', 
         targetKey: 'uuid', 
-        as:'userleaves'// Assuming 'uuid' is the primary key in Facilitators
+        as:'userleaves'
       });
+
+         // One-to-one relationship with LeaveRequest
+         Leave.hasOne(models.LeaveRequest, {
+          foreignKey: 'leaveUUID',
+          as: 'leaveRequest'
+          
+        });
     }
   }
   Leave.init({

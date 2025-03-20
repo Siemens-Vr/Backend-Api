@@ -1,4 +1,4 @@
-const { User, Notification, RefreshToken } = require('../models');
+const { User, Notification, RefreshToken , sequelize} = require('../models');
 const { sendAccountCreationEmail, sendPasswordResetEmail, sendResetSuccessEmail } = require('../mails/email');
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
@@ -8,6 +8,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const dotenv = require('dotenv');
 const { Op } = require('sequelize');
 const { nanoid } = require('nanoid');
+
 
 
 dotenv.config();
@@ -61,7 +62,7 @@ const generateRandomPassword = () => {
   return nanoid(12); // Generates a 12-character random string
 };
 
-// Sign Up
+// Sign UpsendPasswordResetEmail
 module.exports.signUp = async (req, res) => {
   const userId = req.userId;
   console.log(userId)
@@ -183,22 +184,29 @@ module.exports.refreshToken = async (req, res) => {
 module.exports.forgotPass = async (req, res) => {
   const { email } = req.body;
 
+  const transaction = await sequelize.transaction(); // Start transaction
+
   try {
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: 'Email not found.' });
+    const user = await User.findOne({ where: { email }, transaction });
+    if (!user) {
+      await transaction.rollback(); // Rollback if user is not found
+      return res.status(404).json({ message: 'User not found.' });
+    }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiresAt = Date.now() + 3600000; // 1 hour
-    await user.save();
+    await user.save({ transaction }); 
 
     const resetURL =  `${process.env.CLIENT_URL}/resetPassword/${resetToken}`
 
     await sendPasswordResetEmail(email,resetURL );
 
+    await transaction.commit();
+
     res.status(200).json({ message: 'Reset email sent!' });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message:error.message });
   }
 };
 

@@ -19,14 +19,14 @@ exports.sendAccountCreationEmail = async (email, password) => {
   }
 };
 
-exports.passwordResetEmail = async(email, resetURL)=>{
+exports.sendPasswordResetEmail = async(email, resetURL)=>{
   try {
     const response = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email, 
       subject: 'Account Created by the Admin',
       html: PASSWORD_RESET_REQUEST_TEMPLATE
-        .replace('{resetURL}', resetURL)
+        .replace(/{resetURL}/g, resetURL)
        
     });
     console.log('Email sent successfully.');

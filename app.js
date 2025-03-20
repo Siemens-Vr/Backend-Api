@@ -26,7 +26,7 @@ const assigneesRouter = require('./routes/assignees');
 const deliverablesRouter = require('./routes/deliverables');
 const feeRouter = require('./routes/fee');
 const documentsRouter = require('./routes/documentRoutes');
-const staffDocumentsRouter = require('./routes/staffDocuments');
+
 const folderRouter = require('./routes/folder');
 const subFolderRouter = require('./routes/subFolder');
 const weekRouter = require('./routes/weeks');
@@ -104,7 +104,6 @@ app.use('/assignees', assigneesRouter);
 app.use('/deliverables', deliverablesRouter);
 app.use('/fee', feeRouter);
 app.use('/documents',documentsRouter);
-app.use('/staffDocuments',staffDocumentsRouter);
 app.use('/folders',folderRouter);
 app.use('/subFolders',subFolderRouter);
 app.use('/weeks',weekRouter);
@@ -122,9 +121,9 @@ app.get("/", (req, res) => {
 
 // Add a file download route
 app.get('/download/*', (req, res) => {
-    const filePath = req.params[0]; // Extract everything after '/download/'
+    const filePath = req.params[0]; 
 
-    const fullPath = path.join(__dirname, filePath); // Build the full path
+    const fullPath = path.join(__dirname, filePath); 
 
     res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
     res.setHeader('Content-Type', 'application/octet-stream');
@@ -140,8 +139,8 @@ app.get('/download/*', (req, res) => {
 app.post('/foldersUpload/:uuid/:folderPath?/:currentFolderId?', upload.array('files'), async (req, res) => {
     console.log("Uploading files");
     const files = req.files;
-    const filePaths = req.body.filePaths; // Array of relative paths
-    const folderPath = req.params.folderPath; // Folder path from the route parameters
+    const filePaths = req.body.filePaths; 
+    const folderPath = req.params.folderPath; 
 
     try {
         // Retrieve the folder name

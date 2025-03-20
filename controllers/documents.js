@@ -39,6 +39,11 @@ exports.createDocument = async (req, res) => {
       subFolderId,
       documentPath: file.path,
       documentName: file.filename,
+    }, {
+      returning: [
+        'id', 'uuid', 'outputId', 'folderId', 'subFolderId', 
+        'documentPath', 'documentName', 'createdAt', 'updatedAt'
+      ],
     });
 
     console.log("Document Created:", document);

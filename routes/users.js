@@ -1,8 +1,8 @@
 const {Router } =  require('express')
 
 const userRouter = Router();
-const {verifyToken} = require('../middleware/verifyAdminSignUp')
-const {isAdmin} = require('../middleware/isAdmin')
+const {verifyToken} = require('../middleware/verifyToken')
+
 
 const { login, signUp , profile, getUsers, refreshToken,approveUser, forgotPass,getPendingUsers, resetPassword} = require('../controllers/users')
 

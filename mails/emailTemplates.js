@@ -19,8 +19,9 @@ export const ACCOUNT_CREATION_EMAIL_TEMPLATE = `
       <p><strong>Temporary Password:</strong> {password}</p>
     </div>
     <p>Please log in using the above credentials and change your password after logging in for security reasons.</p>
+    <p>NB: Update your personal information on log in</p>
     <p>If you didn't expect this email, please contact the administrator immediately.</p>
-    <p>Best regards,<br>VR LAB Team</p>
+    <p>Best regards,<br>DVR LAB Team</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>This is an automated message, please do not reply to this email.</p>

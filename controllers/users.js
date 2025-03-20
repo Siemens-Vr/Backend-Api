@@ -7,6 +7,8 @@ const crypto = require('crypto');
 const LocalStrategy = require('passport-local').Strategy;
 const dotenv = require('dotenv');
 const { Op } = require('sequelize');
+const { nanoid } = require('nanoid');
+
 
 dotenv.config();
 
@@ -55,6 +57,10 @@ async function generateRefreshToken(user) {
   return token;
 }
 
+const generateRandomPassword = () => {
+  return nanoid(12); // Generates a 12-character random string
+};
+
 // Sign Up
 module.exports.signUp = async (req, res) => {
   const userId = req.userId;
@@ -65,6 +71,7 @@ module.exports.signUp = async (req, res) => {
     let isApproved = false;
     let isDefaultPassword = false;
     let hashedPassword;
+    let defaultPassword = null;
 
     if (userId) {
       const admin = await User.findOne({ where: { uuid: userId } });
@@ -74,10 +81,9 @@ module.exports.signUp = async (req, res) => {
       }
 
       if (admin.role === 'Admin') {
-        console.log("Creating account")
         isApproved = true;
         isDefaultPassword = true;
-        const defaultPassword = 'DVRLAB@2025';
+        const defaultPassword = generateRandomPassword();
         hashedPassword = await bcrypt.hash(defaultPassword, 10);
       } else {
         return res.status(403).json({ message: 'Only Admins can create new users' });
@@ -109,7 +115,7 @@ module.exports.signUp = async (req, res) => {
     });
 
     if (isDefaultPassword) {
-      await sendAccountCreationEmail(newUser.email, 'DVRLAB@2025');
+      await sendAccountCreationEmail(newUser.email, defaultPassword);
     }
 
     if (!isApproved) {
@@ -186,7 +192,9 @@ module.exports.forgotPass = async (req, res) => {
     user.resetPasswordExpiresAt = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    await sendPasswordResetEmail(email, `${process.env.CLIENT_URL}/resetPassword/${resetToken}`);
+    const resetURL =  `${process.env.CLIENT_URL}/resetPassword/${resetToken}`
+
+    await sendPasswordResetEmail(email,resetURL );
 
     res.status(200).json({ message: 'Reset email sent!' });
   } catch (error) {

@@ -13,12 +13,12 @@ router.post('/:userId/:leaveId/create', createLeaveRequest);
 
  
 // Get a specific leave request by ID
-router.get('/:userId/:leaveId/:reqId', getLeaveRequest);
+router.get('/:userId/:leaveId/:id', getLeaveRequest);
 
 // Update a leave request by ID
-router.patch('/:userId/:leaveId/:reqId/update', updateLeaveRequest);
+router.patch('/:userId/:leaveId/:id/update', updateLeaveRequest);
 
 // Delete a leave request by ID
-router.delete('/:userId/:leaveId/:reqId/delete', deleteLeaveRequest);
+router.delete('/:userId/:leaveId/:id/delete', deleteLeaveRequest);
 
 module.exports = router;

@@ -2,24 +2,20 @@ const { Sequelize, Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class LeaveRequest extends Model {
-    
-
     static associate(models) {
-
- 
+      // Association with Leaves model
       this.belongsTo(models.Leaves, {
-         foreignKey: 'leaveUUID',
-         targetKey:'uuid',
-         as:'Leaves'
-         });
-
- 
-      this.belongsTo(models.User, {
-        foreignKey: 'userUUID', 
-        targetKey: 'uuid', 
-        as:'userleaves'
+        foreignKey: 'leaveUUID',
+        targetKey: 'uuid',
+        as: 'Leaves',
       });
 
+      // Association with User model
+      this.belongsTo(models.User, {
+        foreignKey: 'userUUID',
+        targetKey: 'uuid',
+        as: 'userleaves',
+      });
     }
   }
 
@@ -34,7 +30,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-     
+      userUUID: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
       startDate: {
         type: DataTypes.DATE,
         allowNull: false,

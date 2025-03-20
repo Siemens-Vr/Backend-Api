@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // Define association with Facilitators model
+      // Define association with users model
       this.belongsTo(models.User, {
         foreignKey: 'userUUID', 
         targetKey: 'uuid', 
@@ -32,11 +32,7 @@ module.exports = (sequelize, DataTypes) => {
        type: DataTypes.UUID,
      },
      
-    userUUID:{
-      type:Sequelize.UUID,
-      allowNull:false,
-      defaultValue:Sequelize.literal('uuid_generate_v4()'),
-    },
+     
     name:{
       type:DataTypes.STRING,
       allowNull:false

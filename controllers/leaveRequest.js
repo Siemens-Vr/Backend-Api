@@ -3,15 +3,13 @@ const { LeaveRequest } = require('../models');
 
 
 // Create a Leave Request
- 
-
-module.exports.createLeaveRequest = async (req, res) => {
+ module.exports.createLeaveRequest = async (req, res) => {
   try {
-    const { startDate, endDate, Reason, Status } = req.body;
-    const { userId, leaveId } = req.params;
+    const { startDate, endDate, Reason, Status,leaveUUID } = req.body;
+    const { userId } = req.params;
 
     // Validate required fields
-    if (!startDate || !endDate || !Reason) {
+    if (!startDate || !endDate || !Reason ||!leaveUUID ) {
       return res.status(400).json({ error: 'Missing required fields: startDate, endDate, or Reason.' });
     }
 
@@ -28,7 +26,7 @@ module.exports.createLeaveRequest = async (req, res) => {
 
     // Create a leave request
     const leaveRequest = await LeaveRequest.create({
-      leaveUUID: leaveId,
+      leaveUUID,
       userUUID: userId,
       startDate,
       endDate,
@@ -48,26 +46,30 @@ module.exports.createLeaveRequest = async (req, res) => {
 };
 
 
-
-
  // Get a Single Leave Request by ID
 module.exports.getLeaveRequest = async (req, res) => {
   try {
-    const { id } = req.params;
 
-    const leaveRequest = await LeaveRequest.findByPk(id);
+    const { userUUID } = req.params;
 
-    if (!leaveRequest) {
+     const leaveRequests = await LeaveRequest.findAll({
+      where: { userUUID },
+    });
+
+    if (!leaveRequests) {
       return res.status(404).json({ error: 'Leave request not found.' });
     }
 
-    res.status(200).json(leaveRequest);
+    res.status(200).json(leaveRequests);
   } catch (error) {
     console.error('Error fetching leave request:', error);
     res.status(500).json({ error: 'Internal server error.' });
   }
 };
 
+
+ 
+ 
 // Update a Leave Request by ID
 module.exports.updateLeaveRequest = async (req, res) => {
   try {

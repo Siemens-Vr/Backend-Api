@@ -343,26 +343,26 @@ exports.deleteDocument = async (req, res) => {
 //   }
 // };
 
-// exports.deleteDocument = async (req, res) => {
-//   try {
-//       const { projectUuid, documentUuid } = req.params;
+exports.deleteDocument = async (req, res) => {
+  try {
+      const {  documentUuid } = req.params;
 
-//       const document = await Document.findOne({ where: { uuid: documentUuid, projectId: projectUuid } });
-//       if (!document) return res.status(404).json({ error: 'Document not found' });
+      const document = await Document.findOne({ where: { uuid: documentUuid} });
+      if (!document) return res.status(404).json({ error: 'Document not found' });
 
-//       const filePath = path.join(__dirname, '..', document.documentPath);
+      const filePath = path.join(__dirname, '..', document.documentPath);
       
-//       // Delete the file from the file system
-//       if (fs.existsSync(filePath)) {
-//           await fs.unlink(filePath);
-//       }
+      // Delete the file from the file system
+      if (fs.existsSync(filePath)) {
+          await fs.unlink(filePath);
+      }
 
-//       // Delete from database
-//       await document.destroy();
+      // Delete from database
+      await document.destroy();
 
-//       res.status(200).json({ message: 'Document deleted successfully' });
-//   } catch (error) {
-//       console.error('Error deleting document:', error);
-//       res.status(500).json({ error: 'Failed to delete document' });
-//   }
-// };
+      res.status(200).json({ message: 'Document deleted successfully' });
+  } catch (error) {
+      console.error('Error deleting document:', error);
+      res.status(500).json({ error: 'Failed to delete document' });
+  }
+};

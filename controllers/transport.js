@@ -269,6 +269,16 @@ try {
 
         // Handle file updates
         if (files.transport && files.transport.length > 0) {
+            // Remove the previous file if it exists
+            if (transport.document) {
+                const oldFilePath = path.join(__dirname, '..', 'public', transport.document);
+                fs.unlink(oldFilePath, (err) => {
+                    if (err) {
+                        console.error(`Failed to delete old file: ${oldFilePath}`, err);
+                    }
+                });
+            }
+
             updateFields.document = `/uploads/transports/${files.transport[0].filename}`;
             updateFields.documentName = files.transport[0].originalname;
         }

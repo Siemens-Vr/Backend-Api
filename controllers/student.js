@@ -4,7 +4,7 @@ const { sequelize } = require('../models');
 
 const Joi = require('joi')
 const { Op } = require('sequelize');
-const validateStudent = require('../validation/studentsValidation');
+// const validateStudent = require('../validation/studentsValidation');
 
 
 const schema = Joi.object({
@@ -74,7 +74,7 @@ module.exports.getStudents = async (req, res) =>{
 
 module.exports.createStudent = async (req, res) => {
   console.log(req.body);
-  const { error } = validateStudent(req.body);
+  const { error } = req.body;
   if (error) {
       return res.status(400).json({ error: error.details.map(err => err.message) });
   }

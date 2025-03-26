@@ -18,7 +18,7 @@ const borrowRouter = require('./routes/borrow');
 const notificationsRouter = require('./routes/notification');
 const notificationRoutes = require('./routes/job');
 const categoriesRouter = require('./routes/categories');
-const itemsRoutes = require('./routes/itemsRoutes');
+
 const procurementRouter = require('./routes/procurement');
 const projectsRouter = require('./routes/projects');
 const phasesRouter = require('./routes/phases');
@@ -99,7 +99,7 @@ app.use('/borrow', borrowRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/categories', categoriesRouter);
 app.use('/job', notificationRoutes);
-app.use('/items', itemsRoutes);
+
 app.use('/procurements', procurementRouter);
 app.use('/transports', transportRouter)
 app.use('/projects', projectsRouter);

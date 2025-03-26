@@ -5,14 +5,14 @@ module.exports = (sequelize) => {
   class LeaveRequests extends Model {
     static associate(models) {
       // Define associations here
-      // LeaveRequests.belongsTo(models.Users, {
-      //   foreignKey: 'userId',
-      //   as: 'user', // Alias for association
-      // });
-      // LeaveRequests.belongsTo(models.Leaves, {
-      //   foreignKey: 'leaveId',
-      //   as: 'leave', // Alias for association
-      // });
+      LeaveRequests.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'user', // Alias for association
+      });
+      LeaveRequests.belongsTo(models.Leaves, {
+        foreignKey: 'leaveId',
+        as: 'leave', // Alias for association
+      });
     }
   }
 

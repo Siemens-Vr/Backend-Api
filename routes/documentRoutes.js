@@ -24,6 +24,6 @@ router.get('/:outputUuid/:folderUuid/:subFolderUuid', getDocumentsInSubfolder);
 // router.get('/:outputUuid', getAllDocumentsAndFolders);
 // router.get('/:outputUuid/folders/:folderUuid/subfolders/:subFolderUuid', getAllDocuments);
 router.get('/:outputUuid/:documentUuid', getDocumentById);
-router.get('/delete/:documentUuid/', deleteDocument);
+router.get('/delete/:outputUuid/:documentUuid/', deleteDocument);
 
 module.exports = router;

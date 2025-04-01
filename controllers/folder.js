@@ -92,13 +92,25 @@ module.exports.updateFolder = async (req, res) => {
     const folderId = req.params.folderId;
     const { folderName } = req.body;
 
-    const folder = await Folder.findByPk(folderId);
+    // First, try to find the folder in the Folders table
+    let folder = await Folder.findByPk(folderId);
 
+    // If not found in Folders, check Subfolders
+    if (!folder) {
+      folder = await Subfolder.findByPk(folderId);
+    }
+
+    // If still not found, return 404
     if (!folder) {
       return res.status(404).json({ error: "Folder not found" });
     }
-
-    await folder.update({ folderName });
+     
+    // Update the folder name
+    await folder.update({ 
+      folderName: folderName 
+      // Note: The column name might be different depending on your model
+      // It could be 'name' instead of 'folderName'
+    });
 
     res.status(200).json(folder);
   } catch (error) {

@@ -3,7 +3,6 @@ const { SubFolder, Folder } = require('../models');
 module.exports.createSubFolder = async (req, res) => {
   try {
     const uuid = req.params.folderId; // folderId in request
-    const projectId = req.params.projectId;
     const { folderName, parentFolderId } = req.body;
 
     let parentFolder;
@@ -28,7 +27,6 @@ module.exports.createSubFolder = async (req, res) => {
     const subFolder = await SubFolder.create({
       folderId: isSubFolder ? null : uuid, // Use folderId only if it's a Folder
       subFolderId: isSubFolder ? parentFolderId : null, // Use subFolderId only if parentFolder is a SubFolder
-      projectId,
       folderName,
     });
 

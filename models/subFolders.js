@@ -71,17 +71,7 @@ module.exports = (sequelize) => {
           key: 'uuid'
         }
       },
-      projectId: {
-        type: DataTypes.UUID,
-        allowNull: true,
-        references: {
-          model: {
-            schema: 'projects',
-            tableName: 'Projects'
-          },
-          key: 'uuid'
-        }
-      },
+
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

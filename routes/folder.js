@@ -6,7 +6,7 @@ const {createFolder,getFolders,getFolderData,updateFolder,deleteFolder} = requir
 router.post('/:id', createFolder);
 router.get('/:id', getFolders);
 router.get('/folder/:folderId', getFolderData);    //
-router.put('/:folderId', updateFolder);
+router.post('/update/:folderId', updateFolder);
 router.delete('/:folderId', deleteFolder);
 
 module.exports = router;

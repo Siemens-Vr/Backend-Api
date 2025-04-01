@@ -3,7 +3,7 @@ const router = express.Router();
 const { createSubFolder,getSubFolders,getSubFolderData,updateSubFolder,deleteSubFolder} = require('../controllers/subFolder');
 
 
-router.post('/:projectId/:folderId', createSubFolder);
+router.post('/:folderId', createSubFolder);
 router.get('/:folderId', getSubFolders);
 router.get('/:folderUuid/:subFolderUuid ', getSubFolderData);
 router.put('/:subFolderId', updateSubFolder);

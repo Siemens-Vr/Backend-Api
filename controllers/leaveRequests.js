@@ -1,6 +1,6 @@
 const {LeaveRequests} = require('../models')
 const models = require('../models')
-const { v4: isUUID } = require('uuid');
+
 // console.log(models)
 
 module.exports.getAllLeaveRequests =  async(req, res)=>{

@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const LocalStrategy = require('passport-local').Strategy;
+const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const dotenv = require('dotenv');
 const { Op } = require('sequelize');
 const { nanoid } = require('nanoid');
@@ -30,6 +31,30 @@ passport.use(
       })
       .catch(error => done(error));
   })
+);
+
+
+
+// Configure JWT strategy
+passport.use(
+  new JwtStrategy(
+    {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.SECRET_KEY,
+    },
+    async (jwt_payload, done) => {
+      try {
+        const user = await User.findOne({ where: { uuid: jwt_payload.userId } });
+        if (user) {
+          return done(null, user);
+        } else {
+          return done(null, false);
+        }
+      } catch (err) {
+        return done(err, false);
+      }
+    }
+  )
 );
 
 // Generate JWT token
@@ -243,49 +268,21 @@ module.exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-module.exports.profile = async (req, res, next) => {
-  passport.authenticate('jwt', { session: false }, async (err, user, info) => {
-    if (err) {
-      console.error('Authentication error:', err);
-      return res.status(500).json({ message: 'Internal server error' });
-    }
-    
-    if (!user) {
-      return res.status(401).json({ 
-        message: 'Unauthorized',
-        details: info?.message || 'Invalid or expired token'
-      });
+module.exports.profile = async (req, res) => {
+  try {
+    const userData = await User.findOne({
+      where: { uuid: req.user.uuid }});
+
+    if (!userData) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    try {
-      // Fetch fresh user data from database
-      const userData = await User.findOne({ 
-        where: { uuid: user.uuid },
-        attributes: [
-          'uuid',
-          'firstName',
-          'lastName',
-          'email',
-          'role',
-          'isActive',
-          'createdAt',
-          'updatedAt'
-        ],
-        raw: true
-      });
-
-      if (!userData) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-
-      res.status(200).json(userData);
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      res.status(500).json({ message: 'Error fetching user profile' });
-    }
-  })(req, res, next);
+    res.status(200).json(userData);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Error fetching user profile' });
+  }
 };
-
 
 
 module.exports.getPendingUsers = async (req, res) => {

@@ -22,7 +22,6 @@ module.exports = {
         folderName: {
           type: Sequelize.STRING,
           allowNull: false,
-          unique: true,
         },
     
         folderId: {

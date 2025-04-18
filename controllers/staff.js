@@ -12,3 +12,14 @@ module.exports.getStaff = async (req, res) =>{
 
 }
 
+module.exports.getStaffById = async(req, res) =>{
+    const {id} = req.params
+    try{
+        const staff = await  User.findOne({where : {uuid: id}})
+        res.status(201).json( staff)
+
+    }catch(error){
+        res.status(500).json({error:error.message})
+    }
+} 
+

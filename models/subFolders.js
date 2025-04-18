@@ -4,15 +4,7 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class SubFolder extends Model {
     static associate({ Project, Folder,Document }) {
-      // Define association to Project model
-      this.belongsTo(Project, {
-        foreignKey: {
-          name: 'projectId',
-          allowNull: false
-        },
-        as: 'project',
-        onDelete: 'CASCADE'
-      });
+      // Define association to Project mode
       this.belongsTo(Folder, {
         foreignKey: {
           name: 'folderId',
@@ -46,7 +38,7 @@ module.exports = (sequelize) => {
       folderName: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+       
       },
      
       folderId: {

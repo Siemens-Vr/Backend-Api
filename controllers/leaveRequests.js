@@ -34,6 +34,22 @@ module.exports.createLeaveRequests =  async(req, res)=>{
     }
 
 }
+module.exports.getStaffLeaveHistory =  async(req, res)=>{
+    const {id} = req. params
+
+    try {
+
+        const request = await LeaveRequest.findAll({where:{userId: id}})
+        if(!request){
+            return res.status(404).json({message: " Leave Request "})
+        }
+        res.sattus(200).json(request)
+    } catch (error) {
+        console.log({"Error in the create leave Requests controller": error. message, })
+        res.status(500).json({message: "Internal server Error", Error: error.message})
+    }
+
+}
 
 module.exports.getLeaveRequestsById =  async(req, res)=>{
     const {id} = req. params

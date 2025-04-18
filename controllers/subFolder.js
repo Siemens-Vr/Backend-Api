@@ -33,7 +33,7 @@ module.exports.createSubFolder = async (req, res) => {
     return res.status(201).json(subFolder);
   } catch (error) {
     console.error('Error in the subfolder controller:', error.message);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error });
   }
 };
 

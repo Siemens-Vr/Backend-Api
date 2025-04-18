@@ -116,7 +116,7 @@ module.exports.signUp = async (req, res) => {
       }
     } else {
       if (password !== confirmPassword) {
-        return res.status(400).json({ message: 'Passwords do not match' });
+        return res.status(400).json({ message: 'Passwords1 do not match' });
       }
       hashedPassword = await bcrypt.hash(password, 10);
     }

@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const passport = require('./config/passport');
 const { Folder, SubFolder,Document } = require('./models');
 
 
@@ -42,6 +43,8 @@ const leaveRouter = require('./routes/leaves')
 const leaveRequestRouter = require('./routes/leaveRequests')
 const todoRouter = require('./routes/todo')
 
+const {isAuthenticated} = require('./middleware/auth');
+
 
 const multer = require('multer');
 const fs = require('fs');
@@ -67,6 +70,9 @@ const PORT = process.env.PORT || 5000;
 
 
 app.use(cors())
+app.use(passport.initialize());
+
+
 
 // app.use(cors({
 //     origin: 'https://vmlab.dkut.ac.ke', // Allow requests from your frontend
@@ -85,11 +91,16 @@ app.use((req, res, next) => {
 
 // Public Route: No authentication required for this route
 app.use('/api/auth', userRouter);
+
+
+// Protected Routes: Apply `isAuthenticated` middleware to all other routes
+
+app.use(isAuthenticated);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/staffUploads', express.static(path.join(__dirname, 'staffUploads')));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Protected Routes: Apply `isAuthenticated` middleware to all other routes
+
 app.use('/facilitators', facilitatorsRouter);
 app.use('/staffs', staffRouter);
 app.use('/levels', levelRouter);
@@ -123,9 +134,7 @@ app.use('/leaveRequests' , leaveRequestRouter)
 app.use('/todos', todoRouter)
 
 // Test route to verify server is running
-app.get("/", (req, res) => {
-    res.send('Hello world');
-});
+
 
 
 // Add a file download route

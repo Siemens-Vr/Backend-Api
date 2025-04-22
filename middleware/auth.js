@@ -1,6 +1,6 @@
 const passport = require('passport');
 
-exports.authenticateJwt = (req, res, next) => {
+const authenticateJwt = (req, res, next) => {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       console.error('Passport error:', err);
@@ -23,4 +23,12 @@ exports.authenticateJwt = (req, res, next) => {
     req.user = user;
     next();
   })(req, res, next);
+};
+
+
+const isAuthenticated = passport.authenticate('jwt', { session: false });
+
+module.exports = {
+  authenticateJwt,
+  isAuthenticated,
 };

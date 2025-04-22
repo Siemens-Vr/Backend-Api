@@ -40,6 +40,7 @@ const outputRouter=require('./routes/output')
 
 const leaveRouter = require('./routes/leaves')
 const leaveRequestRouter = require('./routes/leaveRequests')
+const todoRouter = require('./routes/todo')
 
 
 const multer = require('multer');
@@ -119,6 +120,7 @@ app.use('/outputs', outputRouter)
 
 app.use('/leaves' , leaveRouter)
 app.use('/leaveRequests' , leaveRequestRouter)
+app.use('/todos', todoRouter)
 
 // Test route to verify server is running
 app.get("/", (req, res) => {

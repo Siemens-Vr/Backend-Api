@@ -3,18 +3,35 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
-    await queryInterface.createTable('Todos', {
+    await queryInterface.createTable(
+      {
+        schema: 'users', 
+        tableName: 'Todos'
+      }, {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      uuid:{
-        primaryKey: true,
-        allowNull: false,
-        type: DataTypes.UUID,
+      uuid: {
+        type: Sequelize.UUID,
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
+        primaryKey: true,
+        allowNull: false
+      },
+      userId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: {
+            schema: 'users',
+            tableName: 'Users'
+          },
+          key: 'uuid'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       todo: {
         type: Sequelize.TEXT,
@@ -43,6 +60,11 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Todos');
+    await queryInterface.dropTable(
+      {
+        schema: 'users', 
+        tableName: 'Todos'
+      }
+    );
   }
 };

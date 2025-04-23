@@ -69,24 +69,34 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 
-app.use(cors())
+// app.use(cors())
 app.use(passport.initialize());
+// app.options('*', cors());
 
 
+const allowedOrigins = ['http://localhost:3000', 'https://vmlab.dkut.ac.ke/'];
 
-// app.use(cors({
-//     origin: 'https://vmlab.dkut.ac.ke', // Allow requests from your frontend
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
-//     allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
-// }));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-  });
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     res.header('Access-Control-Allow-Headers', 'Content-Type');
+//     next();
+//   });
   
 
 // Public Route: No authentication required for this route

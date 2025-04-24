@@ -103,6 +103,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Public Route: No authentication required for this route
 app.use('/api/auth', userRouter);
+app.get('/', (req, res)=>{
+    res.status(200).json("Everything is good")
+})
 
 
 // Protected Routes: Apply `isAuthenticated` middleware to all other routes

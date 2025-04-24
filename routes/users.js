@@ -15,7 +15,7 @@ userRouter.post('/signup',verifyToken, signUp)
 userRouter.post('/login', login)
 userRouter.get('/unApproved', getPendingUsers)
 userRouter.get('/:id/approved', approveUser)
-userRouter.post('/refresh-token', verifyToken, refreshToken); 
+userRouter.post('/refresh-token',  refreshToken); 
 userRouter.get('/profile', authenticateJwt,  profile)
 userRouter.post('/forgotPassword',  forgotPass)
 

@@ -188,7 +188,7 @@ module.exports.login = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({ user, accessToken,refreshToken, message: 'Login successful' });
+    res.status(200).json({ user, accessToken, message: 'Login successful' });
   })(req, res, next);
 };
 

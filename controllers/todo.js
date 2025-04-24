@@ -79,3 +79,11 @@ module.exports.updateTodo = async (req, res) => {
     }
 };
 
+module.exports.updateTodos =async(req, res) =>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}
+

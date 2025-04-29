@@ -5,7 +5,7 @@ const {verifyToken} = require('../middleware/verifyToken')
 const {authenticateJwt} =require('../middleware/auth')
 
 
-const { login, signUp , profile, refreshToken,approveUser, forgotPass,getPendingUsers, resetPassword} = require('../controllers/users')
+const { login, signUp , profile , refreshToken,approveUser, forgotPass,getPendingUsers, resetPassword} = require('../controllers/users')
 
 // const isAuthenticated = require('../middleware/isAuthenticated');
 

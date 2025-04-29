@@ -68,7 +68,7 @@ function generateToken(user) {
       role: user.role,
     },
     process.env.SECRET_KEY,
-    { expiresIn: '1h' }
+    { expiresIn: '20m' }
   );
 }
 
@@ -216,6 +216,25 @@ module.exports.refreshToken = async (req, res) => {
 
     // 4. Generate new access token
     const newAccessToken = generateToken(user);
+
+    // 5. Generate new refresh token
+    const newRefreshToken = await generateRefreshToken(user);
+
+    // 6. Update the refresh token in the database
+    await RefreshToken.update(
+      { token: newRefreshToken, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },  // 7 days expiry
+      { where: { token: refreshToken } }
+    );
+
+    // 7. Set the new refresh token in the HTTP-only cookie
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days expiry
+    });
+
+    // 8. Respond with the new access token
     res.status(200).json({ accessToken: newAccessToken });
 
   } catch (error) {
@@ -223,6 +242,7 @@ module.exports.refreshToken = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 // Forgot Password

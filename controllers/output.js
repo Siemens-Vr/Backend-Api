@@ -2,14 +2,16 @@ const { Output } = require('../models');
 
 // Create a new Output
 const createOutput = async (req, res) => {
+  console.log(req.body)
   const {milestoneId} = req.params
   try {
-    // const { name, description, completionDate, status } = req.body;
-    // const output = await Output.create({ name, description, completionDate, status, milestoneId });
-    const output = await Output.create({ ...req.body, milestoneId });
+    const { name, description, completionDate, status } = req.body;
+    const output = await Output.create({ name, description, completionDate, status, milestoneId });
+    // const output = await Output.create({ ...req.body, milestoneId });
 
     res.status(201).json(output);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: error });
   }
 };
@@ -42,6 +44,7 @@ const getOutputById = async (req, res) => {
 // Update an Output by ID
 const updateOutputById = async (req, res) => {
   try {
+    console.log(req.body)
     const { id } = req.params;
     const { name, description, completionDate, status, milestoneId } = req.body;
     const output = await Output.findByPk(id);

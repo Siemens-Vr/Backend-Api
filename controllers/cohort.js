@@ -26,6 +26,7 @@ module.exports.getCohorts = async (req, res) => {
 };
 
 module.exports.createCohort = async (req, res) => {
+  console.log(req.body)
   const data = req.body;
   const { cohortName, startDate, endDate, levels } = data; // Extract the cohort and levels from the request
 
@@ -41,6 +42,7 @@ module.exports.createCohort = async (req, res) => {
       },
       { transaction } // Pass the transaction
     );
+ 
 
     const cohortId = createCohort.uuid; // Assuming the cohort has a UUID
 
@@ -64,10 +66,13 @@ module.exports.createCohort = async (req, res) => {
         exam_quotation_number
       };
 
+
       // Create the level and associate it with the cohort
       const createLevel = await Level.create(levelData, { transaction });
 
       const levelId = createLevel.uuid; // Assuming the level has a UUID
+
+      console.log(createLevel)
 
       // Loop through facilitators and associate them with the level
       for (const facilitator of facilitators) {
@@ -160,6 +165,56 @@ module.exports.getCohortById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+// MODIFIED GET COHORT CODE
+
+// module.exports.getCohortById = async (req, res) => {
+//   const { error, value: id } = uuidSchema.validate(req.params.id);
+
+//   if (error) {
+//     return res.status(400).json({ message: "Invalid UUID format" });
+//   }
+
+//   try {
+//     const cohort = await Cohort.findOne({
+//       where: { uuid: id },
+//       include: [
+//         {
+//           model: Level,
+//           as: 'levels',
+//           include: [
+//             {
+//               model: Student,
+//               as: 'students',
+//               through: { attributes: [] }, // if you're using StudentLevels
+//             },
+//             {
+//               model: Facilitator,
+//               as: 'facilitators',
+//               through: { attributes: ['specification'] }, // gets the pivot role
+//             }
+//           ]
+//         }
+//       ]
+//     });
+
+//     if (!cohort) {
+//       return res.status(404).json({ message: 'Cohort not found' });
+//     }
+
+//     // Return the full cohort structure with levels, students, and facilitators
+//     return res.status(200).json(cohort);
+
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
+
 
 // module.exports.getCohortById = async (req, res) => {
 //   const { error, value: id } = uuidSchema.validate(req.params.id);

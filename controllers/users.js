@@ -68,7 +68,7 @@ function generateToken(user) {
       role: user.role,
     },
     process.env.SECRET_KEY,
-    { expiresIn: '1h' }
+    { expiresIn: '20m' }
   );
 }
 
@@ -86,6 +86,7 @@ async function generateRefreshToken(user) {
 const generateRandomPassword = () => {
   return nanoid(12); // Generates a 12-character random string
 };
+const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
 
 // Sign UpsendPasswordResetEmail
 module.exports.signUp = async (req, res) => {
@@ -171,6 +172,14 @@ module.exports.login = async (req, res, next) => {
     const accessToken = generateToken(user);
     const refreshToken = await generateRefreshToken(user);
 
+       // Set refresh token in HTTP-only cookie
+       res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+        maxAge: SEVEN_DAYS,
+      });
+
     if (user.isDefaultPassword) {
       return res.status(403).json({
         message: 'You must change your password before proceeding',
@@ -179,31 +188,62 @@ module.exports.login = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({ user, accessToken, refreshToken, message: 'Login successful' });
+    res.status(200).json({ user, accessToken, message: 'Login successful' });
   })(req, res, next);
 };
 
 // Refresh Token
 module.exports.refreshToken = async (req, res) => {
-  const { refreshToken } = req.body;
-
   try {
+    // 1. Get the refreshToken from the cookie
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'Refresh token missing' });
+    }
+
+    // 2. Validate the token in your DB
     const storedToken = await RefreshToken.findOne({ where: { token: refreshToken } });
 
     if (!storedToken || storedToken.expiresAt < new Date()) {
       return res.status(401).json({ message: 'Refresh token is invalid or expired' });
     }
 
+    // 3. Get the user
     const user = await User.findByPk(storedToken.userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
+    // 4. Generate new access token
     const newAccessToken = generateToken(user);
+
+    // 5. Generate new refresh token
+    const newRefreshToken = await generateRefreshToken(user);
+
+    // 6. Update the refresh token in the database
+    await RefreshToken.update(
+      { token: newRefreshToken, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },  // 7 days expiry
+      { where: { token: refreshToken } }
+    );
+
+    // 7. Set the new refresh token in the HTTP-only cookie
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days expiry
+    });
+
+    // 8. Respond with the new access token
     res.status(200).json({ accessToken: newAccessToken });
+
   } catch (error) {
     console.error('Error refreshing token:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
 
 // Forgot Password
 module.exports.forgotPass = async (req, res) => {

@@ -52,6 +52,7 @@ module.exports.getMilestoneById = async (req, res) => {
 
 // Update a milestone by UUID
 module.exports.updateMilestone = async (req, res) => {
+  console.log(req.body)
   try {
     const { uuid } = req.params;
     const { name, startDate, endDate, status } = req.body;

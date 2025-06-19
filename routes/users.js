@@ -5,7 +5,7 @@ const {verifyToken} = require('../middleware/verifyToken')
 const {authenticateJwt} =require('../middleware/auth')
 
 
-const { login, signUp , profile, getUsers, refreshToken,approveUser, forgotPass,getPendingUsers, resetPassword} = require('../controllers/users')
+const { login, signUp , profile , refreshToken,approveUser, forgotPass,getPendingUsers, resetPassword} = require('../controllers/users')
 
 // const isAuthenticated = require('../middleware/isAuthenticated');
 
@@ -15,7 +15,7 @@ userRouter.post('/signup',verifyToken, signUp)
 userRouter.post('/login', login)
 userRouter.get('/unApproved', getPendingUsers)
 userRouter.get('/:id/approved', approveUser)
-userRouter.post('/refresh-token', verifyToken, refreshToken); 
+userRouter.post('/refresh-token',  refreshToken); 
 userRouter.get('/profile', authenticateJwt,  profile)
 userRouter.post('/forgotPassword',  forgotPass)
 

@@ -46,25 +46,18 @@ module.exports.getCategoryById = async (req, res) => {
   };
   
   module.exports.createCategories = async (req, res) => {
-    const { category } = req.body;
+    console.log(req.body);
+    const { categories } = req.body;
   
-    if (!category) {
-      return res.status(400).json({ message: "Category is required" });
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ message: "At least one category is required" });
     }
   
-    const categoriesArray = category.split(',').map(cat => cat.trim());
+    // Trim all categories and remove empty strings
+    const categoriesArray = categories.map(cat => cat.trim()).filter(cat => cat !== '');
   
-    // Validate each category
-    const validationErrors = [];
-    categoriesArray.forEach((cat, index) => {
-      const { error } = validateCategory({ category: cat });
-      if (error) {
-        validationErrors.push(`Category at index ${index}: ${error.details[0].message}`);
-      }
-    });
-  
-    if (validationErrors.length > 0) {
-      return res.status(400).json({ message: "Validation failed", errors: validationErrors });
+    if (categoriesArray.length === 0) {
+      return res.status(400).json({ message: "Provided categories are invalid" });
     }
   
     try {
@@ -83,6 +76,7 @@ module.exports.getCategoryById = async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   };
+  
   
   module.exports.updateCategory = async (req, res) => {
     const { error: uuidError, value: uuid } = uuidSchema.validate(req.params.id);

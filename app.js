@@ -4,6 +4,8 @@ const path = require('path');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const passport = require('./config/passport');
+const cookieParser = require('cookie-parser');
+
 const { Folder, SubFolder,Document } = require('./models');
 
 
@@ -71,7 +73,7 @@ const PORT = process.env.PORT || 5000;
 
 // app.use(cors())
 app.use(passport.initialize());
-// app.options('*', cors());
+app.use(cookieParser());
 
 
 const allowedOrigins = ['http://localhost:3000','http://localhost:3001', 'https://vmlab.dkut.ac.ke'];
@@ -85,6 +87,7 @@ app.use(cors({
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
+  methods: ['GET', 'POST', 'PATCH','PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
@@ -101,6 +104,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Public Route: No authentication required for this route
 app.use('/api/auth', userRouter);
+app.get('/', (req, res)=>{
+    res.status(200).json("Everything is good")
+})
 
 
 // Protected Routes: Apply `isAuthenticated` middleware to all other routes

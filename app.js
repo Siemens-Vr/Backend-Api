@@ -45,6 +45,8 @@ const leaveRouter = require('./routes/leaves')
 const leaveRequestRouter = require('./routes/leaveRequests')
 const todoRouter = require('./routes/todo')
 
+const cardRouter = require('./routes/cards')
+
 const {isAuthenticated} = require('./middleware/auth');
 
 
@@ -148,6 +150,8 @@ app.use('/leaves' , leaveRouter)
 app.use('/leaveRequests' , leaveRequestRouter)
 app.use('/todos', todoRouter)
 
+
+app.use('/cards', cardRouter)
 // Test route to verify server is running
 
 

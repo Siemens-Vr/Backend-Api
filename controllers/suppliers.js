@@ -91,7 +91,7 @@ module.exports.getSuppliers = async (req, res) => {
 module.exports.createSupplier = async (req, res) => {
   // console.log(req.files);
   console.log(req.body)
-  const { suppliers, itemDescription, amountClaimed, approver, dateTakenToApprover, dateTakenToFinance, type, PvNo, claimNumber, accounted, dateAccounted, project, invoiceDate, paymentDate, approvalDate } = req.body;
+  const { suppliers, itemDescription, amountClaimed, approver, dateTakenToApprover, dateTakenToFinance, type, PvNo, checkNo,claimNumber, accounted, dateAccounted, project, invoiceDate, paymentDate, approvalDate } = req.body;
   const files = req.files || {};  
 
 
@@ -111,6 +111,7 @@ module.exports.createSupplier = async (req, res) => {
       type,
       claimNumber,
       PvNo,
+      checkNo,
       accounted,
       dateAccounted: dateAccounted || null,
       project,
@@ -164,6 +165,7 @@ module.exports.updateSupplier = async (req, res) => {
     dateTakenToFinance,
     type,
     PvNo,
+    checkNo,
     claimNumber,
     accounted,
     dateAccounted,
@@ -224,6 +226,7 @@ module.exports.updateSupplier = async (req, res) => {
       dateTakenToFinance: dateTakenToFinance || supplier.dateTakenToFinance,
       type: type || supplier.type,
       PvNo: PvNo || supplier.PvNo,
+      checkNo: checkNo || supplier.checkNo,
       claimNumber: claimNumber || supplier.claimNumber,
       accounted: accounted !== undefined ? accounted : supplier.accounted,
       dateAccounted: dateAccounted || supplier.dateAccounted,

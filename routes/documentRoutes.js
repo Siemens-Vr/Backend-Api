@@ -19,7 +19,7 @@ router.put('/:outputUuid/:documentUuid/:folderUuid?/:subFolderUuid?', upload.sin
 router.get('/:outputUuid/folders', getAllDocumentsAndFolders);
 router.get('/:outputUuid/:folderUuid?', getAllDocuments);
 // router.get('/:outputUuid/:subFolderUuid', getDocumentsInSubfolder);
-router.get('/:outputUuid/:folderUuid/:subFolderUuid', getDocumentsInSubfolder);
+router.get('/:outputUuid/:folderUuid?/:subFolderUuid?', getDocumentsInSubfolder);
 
 // router.get('/:outputUuid', getAllDocumentsAndFolders);
 // router.get('/:outputUuid/folders/:folderUuid/subfolders/:subFolderUuid', getAllDocuments);

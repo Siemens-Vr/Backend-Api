@@ -87,7 +87,7 @@ module.exports.createProcurement = async (req, res) => {
   // console.log(req.files);
   console.log(req.body)
   const {outputId} = req.params
-  const { suppliers,itemName,  itemDescription, amountClaimed, approver, dateTakenToApprover, dateTakenToFinance, type, PvNo, claimNumber, accounted, dateAccounted,  invoiceDate, paymentDate, approvalDate } = req.body;
+  const { suppliers,itemName,  itemDescription, amountClaimed, approver, dateTakenToApprover, dateTakenToFinance, type, PvNo,checkNo,cashReceiptNo, claimNumber, accounted, dateAccounted,  invoiceDate, paymentDate, approvalDate } = req.body;
   const files = req.files || {};  
 
 
@@ -109,6 +109,8 @@ module.exports.createProcurement = async (req, res) => {
       type,
       claimNumber,
       PvNo,
+      checkNo,
+      cashReceiptNo,
       accounted,
       dateAccounted: dateAccounted || null,
       // approval,
@@ -161,7 +163,8 @@ module.exports.updateProcurement = async (req, res) => {
     claimNumber,
     accounted,
     dateAccounted,
-
+    checkNo,
+    cashReceiptNo,
     invoiceDate,
     paymentDate,
     approvalDate,
@@ -206,6 +209,8 @@ module.exports.updateProcurement = async (req, res) => {
       dateTakenToFinance: dateTakenToFinance || supplier.dateTakenToFinance,
       type: type || supplier.type,
       PvNo: PvNo || supplier.PvNo,
+      cashReceiptNo:cashReceiptNo || supplier.cashReceiptNo,
+      checkNo: checkNo || supplier.checkNo,
       claimNumber: claimNumber || supplier.claimNumber,
       accounted: accounted !== undefined ? accounted : supplier.accounted,
       dateAccounted: dateAccounted || supplier.dateAccounted,

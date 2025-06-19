@@ -88,7 +88,8 @@ module.exports.createSubFolder = async (req, res) => {
     module.exports.updateSubFolder = async (req, res) => {
       try {
         const subFolderId = req.params.subFolderId;
-        const { name, description } = req.body;
+        const { folderName } = req.body;
+
     
         const subFolder = await SubFolder.findByPk(subFolderId);
     
@@ -97,8 +98,7 @@ module.exports.createSubFolder = async (req, res) => {
         }
     
         await subFolder.update({
-          folderName: name,
-          description
+          folderName
         });
     
         res.status(200).json(subFolder);

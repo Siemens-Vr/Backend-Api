@@ -63,6 +63,12 @@ const supplierSchema = Joi.object({
     .messages({
       'string.base': 'Enter a valid PvNo.',
     }),
+    
+  CheckNo: Joi.string()
+  .allow(null, '')
+  .messages({
+    'string.base': 'Enter a valid checkNo.',
+  }),
 
   claimNumber: Joi.string()
     .allow(null, '')

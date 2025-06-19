@@ -33,7 +33,7 @@ function isSearchableType(type) {
 module.exports.createTransport =async ( req, res)=>{
     const {outputId} = req.params
     const files = req.files || {};  
-    const {destination, description, travelPeriod, travelers, dateOfRequest, dateReceived, approver, approvalDate, type, PvNo, claimNumber, accounted, dateAccounted,paymentDate, allowance, beneficiary } = req.body
+    const {destination, description, travelPeriod, travelers, dateOfRequest, dateReceived, approver, approvalDate, type, PvNo, cashReceiptNo, checkNo,  claimNumber, accounted, dateAccounted,paymentDate, allowance, beneficiary } = req.body
 
     console.log(req.body)
     
@@ -52,6 +52,8 @@ module.exports.createTransport =async ( req, res)=>{
               approvalDate: approvalDate || null,
               type,
               PvNo,
+              checkNo,
+              cashReceiptNo,
               claimNumber,
               accounted,
               dateAccounted : dateAccounted || null,
@@ -260,6 +262,8 @@ try {
         if (updates.approvalDate !== undefined) updateFields.approvalDate = parseDate(updates.approvalDate);
         if (updates.type !== undefined) updateFields.type = updates.type;
         if (updates.PvNo !== undefined) updateFields.PvNo = updates.PvNo;
+        if (updates.cashReceiptNo !== undefined) updateFields.cashReceiptNo = updates.cashReceiptNo;
+        if (updates.checkNo !== undefined) updateFields.checkNo = updates.checkNo;
         if (updates.claimNumber !== undefined) updateFields.claimNumber = updates.claimNumber;
         if (updates.accounted !== undefined) updateFields.accounted = updates.accounted;
         if (updates.dateAccounted !== undefined) updateFields.dateAccounted = parseDate(updates.dateAccounted);

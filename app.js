@@ -74,7 +74,7 @@ app.use(passport.initialize());
 // app.options('*', cors());
 
 
-const allowedOrigins = ['http://localhost:3000', 'https://vmlab.dkut.ac.ke/'];
+const allowedOrigins = ['http://localhost:3000','http://localhost:3001', 'https://vmlab.dkut.ac.ke'];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -84,7 +84,7 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
@@ -105,7 +105,7 @@ app.use('/api/auth', userRouter);
 
 // Protected Routes: Apply `isAuthenticated` middleware to all other routes
 
-app.use(isAuthenticated);
+// app.use(isAuthenticated);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/staffUploads', express.static(path.join(__dirname, 'staffUploads')));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -223,7 +223,10 @@ app.post('/foldersUpload/:uuid/:folderPath?/:currentFolderId?', upload.array('fi
 });
 
 
-
+app.get('/', (req, res) => {
+    res.send('Hello World');
+  });
+  
 
 
 // Start the server

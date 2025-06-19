@@ -33,11 +33,11 @@ const upload = multer({
     }
   })
 }).fields([
-  { name: 'videos', maxCount: 10 },
-  { name: 'report', maxCount: 10 },
-  { name: 'files', maxCount: 10 },
-  { name: 'procurement', maxCount: 10 },
-  { name: 'transport', maxCount: 10 }, 
+  { name: 'videos', maxCount: 20 },
+  { name: 'report', maxCount: 20 },
+  { name: 'files', maxCount: 20 },
+  { name: 'procurement', maxCount: 20 },
+  { name: 'transport', maxCount: 20 }, 
 ]);
 
 module.exports = { upload };

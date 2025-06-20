@@ -6,7 +6,7 @@ module.exports.getCards = async (req, res)=>{
  const {uuid} = req.params
   const cards = await Cards.findAll({where: {milestoneId: uuid} })
 
-  res.status(200).json({cards})
+  res.status(200).json(cards)
 
   try{
 

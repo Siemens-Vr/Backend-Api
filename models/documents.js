@@ -4,18 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Document extends Model {
     static associate({ Output, Folder, SubFolder }) {
-      this.belongsTo(Output, {
-        foreignKey: 'outputId',
-        as: 'output',
-      });
-      this.belongsTo(Folder, {
-        foreignKey: 'folderId',
-        as: 'folder',
-      });
-      this.belongsTo(SubFolder, {
-        foreignKey: 'subFolderId',
-        as: 'subFolder',
-      });
+    
     }
   }
 

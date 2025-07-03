@@ -4,24 +4,7 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Folder extends Model {
     static associate({ Output,SubFolder, Document}) {
-      this.belongsTo(Output, {
-        foreignKey: {
-          name: 'outputId',
-          allowNull: false
-        },
-        as: 'outputs',
-        onDelete: 'CASCADE', 
-      });
-      this.hasMany(SubFolder, {
-        foreignKey: 'folderId',
-        as: 'subFolders',
-        onDelete: 'CASCADE',
-      });
-      this.hasMany(Document, {
-        foreignKey: 'folderId',
-        as: 'documents',
-        onDelete: 'CASCADE',
-      });
+      
     }
   }
 

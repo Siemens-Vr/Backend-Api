@@ -22,30 +22,20 @@ const notificationsRouter = require('./routes/notification');
 const notificationRoutes = require('./routes/job');
 const categoriesRouter = require('./routes/categories');
 
-const procurementRouter = require('./routes/procurement');
-const projectsRouter = require('./routes/projects');
-const phasesRouter = require('./routes/phases');
-const assigneesRouter = require('./routes/assignees');
-const deliverablesRouter = require('./routes/deliverables');
 const feeRouter = require('./routes/fee');
 const documentsRouter = require('./routes/documentRoutes');
 
 const folderRouter = require('./routes/folder');
 const subFolderRouter = require('./routes/subFolder');
 const weekRouter = require('./routes/weeks');
-const materialRouter = require('./routes/materials');
-const applicantsRouter = require('./routes/applicants')
-const transportRouter = require('./routes/transport')
-const reportRouter = require('./routes/reports')
-const milestoneRouter=require('./routes/milestones')
-const outputRouter=require('./routes/output')
+
 
 
 const leaveRouter = require('./routes/leaves')
 const leaveRequestRouter = require('./routes/leaveRequests')
 const todoRouter = require('./routes/todo')
 
-const cardRouter = require('./routes/cards')
+
 
 const {isAuthenticated} = require('./middleware/auth');
 
@@ -129,30 +119,22 @@ app.use('/notifications', notificationsRouter);
 app.use('/categories', categoriesRouter);
 app.use('/job', notificationRoutes);
 
-app.use('/procurements', procurementRouter);
-app.use('/transports', transportRouter)
-app.use('/projects', projectsRouter);
-app.use('/phases', phasesRouter);
-app.use('/assignees', assigneesRouter);
-app.use('/deliverables', deliverablesRouter);
+
+
 app.use('/fee', feeRouter);
 app.use('/documents',documentsRouter);
 app.use('/folders',folderRouter);
 app.use('/subFolders',subFolderRouter);
 app.use('/weeks',weekRouter);
-app.use('/materials',materialRouter);
-app.use('/applicants', applicantsRouter)
-app.use('/reports', reportRouter)
-app.use('/milestones', milestoneRouter)
-app.use('/outputs', outputRouter)
+
+
 
 app.use('/leaves' , leaveRouter)
 app.use('/leaveRequests' , leaveRequestRouter)
 app.use('/todos', todoRouter)
 
 
-app.use('/cards', cardRouter)
-// Test route to verify server is running
+
 
 
 

@@ -30,7 +30,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.UUID,
     },
-    name: {
+    project_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -38,24 +42,25 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
+   type:{
+      type: DataTypes.ENUM('Milestones', 'Work Package', 'Duration Years'),
+      defaultValue:"Milestones",
+      allowNull:false
     },
-    budget: {
+    total_value: {
       type: DataTypes.DECIMAL,
       allowNull: true,
     },
-    funding: {
+    approved_funding: {
       type: DataTypes.DECIMAL,
       allowNull: true,
     },
-    startDate: {
-      type: DataTypes.DATEONLY,
+    implementation_startDate: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
-    endDate: {
-      type: DataTypes.DATEONLY,
+    implementation_endDate: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
     createdAt: {
@@ -65,11 +70,12 @@ module.exports = (sequelize, DataTypes) => {
     updatedAt: {
       allowNull: false,
       type: DataTypes.DATE,
-    },
+    }
   }, {
     sequelize,
     modelName: 'Project',
     schema: 'projects',
+    tableName: 'Projects', // ensure table name matches migration
   });
 
   return Project;

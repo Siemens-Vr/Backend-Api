@@ -1,4 +1,5 @@
 'use strict';
+const { allow } = require('joi');
 const { Sequelize, DataTypes } = require('sequelize');
 
 module.exports = {
@@ -16,7 +17,11 @@ module.exports = {
         type: DataTypes.UUID,
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
-      name: {
+      project_id:{
+        type:Sequelize.STRING,
+        allowNull:true
+      },
+      title: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -24,23 +29,24 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      status: {
-        type: Sequelize.STRING,
-        allowNull: false,
+      type:{
+        type: Sequelize.ENUM('Milestones', 'Work Package', 'Duration Years'),
+        defaultValue:"Milestones",
+        allowNull:false
       },
-      budget: {
+      total_value: {
         type: Sequelize.DECIMAL,
         allowNull: true,
       },
-      funding: {
+      approved_funding: {
         type: Sequelize.DECIMAL,
         allowNull: true,
       },
-      startDate: {
+      implementation_startDate: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      endDate: {
+      implementation_endDate: {
         type: Sequelize.DATE,
         allowNull: false,
       },

@@ -15,15 +15,27 @@ module.exports = {
         type: DataTypes.UUID,
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
-      name: {
+      no:{
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        unique:true
+
+      },
+      title: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique:true
       },
-      startDate: {
+      description: {
+        type: Sequelize.STRING,
+        allowNull: false,
+
+      },
+      implementation_startDate: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      endDate: {
+      implementation_endDate: {
         type: Sequelize.DATE,
         allowNull: false,
       },

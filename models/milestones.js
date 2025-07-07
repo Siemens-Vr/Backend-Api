@@ -31,16 +31,26 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.UUID,
     },
-    name: {
+    no:{
+      allowNull: false,
+      type: DataTypes.INTEGER,
+
+    },
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    startDate: {
-      type: DataTypes.DATEONLY,
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+
+    },
+    implementation_startDate: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
-    endDate: {
-      type: DataTypes.DATEONLY,
+    implementation_endDate: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
     status: {

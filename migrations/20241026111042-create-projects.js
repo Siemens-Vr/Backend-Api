@@ -19,11 +19,13 @@ module.exports = {
       },
       project_id:{
         type:Sequelize.STRING,
-        allowNull:true
+        allowNull:true,
+        unique:true
       },
       title: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique:true
       },
       description: {
         type: Sequelize.TEXT,

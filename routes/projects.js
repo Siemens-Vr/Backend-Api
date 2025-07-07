@@ -4,7 +4,7 @@ const { createProject, getProjectById, getAllProjects,updateProject,deleteProjec
 const upload = require('../middleware/uploadMiddleware'); 
 
 
-router.post('/create',  createProject);
+router.post('/',  createProject);
 router.get('/:uuid', getProjectById);
 router.get('/', getAllProjects);
 router.post('/update/:uuid',  updateProject);

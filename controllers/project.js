@@ -1,19 +1,37 @@
-const { Project, Assignee, Phase, Deliverable, sequelize } = require('../models'); 
+const { Project, Assignee, Phase, Deliverable,Milestone,  sequelize } = require('../models'); 
 const path = require('path');
 
 
   module.exports.createProject=async (req,res)=> {
+    const {
+      project_id,
+      title,
+      type,
+      description,
+      total_value,
+      approved_funding,
+      implementation_startDate,
+      implementation_endDate
     
+    } = req.body
     try {
-
-      const newProject=await Project.create(req.body);
+      const newProject=await Project.create({
+        project_id,
+        title,
+        type,
+        description,
+        total_value,
+        approved_funding,
+        implementation_startDate,
+        implementation_endDate
+      });
 
       //Send success response
       res.status(201).json({message:'project created successfully', project:newProject});
       
     } catch (error) {
       console.error("'Error creating project", error);
-      res.status(500).json({message:'Failed to create project', error:error.message})
+      res.status(500).json({message:'Failed to create project', error:error.errors[0].message})
     }
 
 
@@ -36,7 +54,7 @@ module.exports.getAllProjects = async (req, res) => {
     res.status(200).json(projects);
   } catch (error) {
     console.error('Error retrieving projects:', error);
-    res.status(500).json({ message: 'Failed to retrieve projects', error: error.message });
+    res.status(500).json({ message: 'Failed to retrieve projects', error:error.errors[0].message});
   }
 };
 
@@ -47,7 +65,16 @@ module.exports.getProjectById = async (req, res) => {
   const { uuid } = req.params;
 
   try {
-    const project = await Project.findOne({where: { uuid } });
+    const project = await Project.findOne({
+      where: { uuid },
+      include: [{
+        model: Milestone,
+        as: 'milestones',
+        separate: true,
+        order: [['no', 'ASC']],
+        required: false,
+      }],
+    });
 
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
@@ -55,9 +82,15 @@ module.exports.getProjectById = async (req, res) => {
 
     res.status(200).json(project);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to retrieve project', error: error.message });
+    res.status(500).json({
+      message: 'Failed to retrieve project',
+      error: error.message
+    });
   }
 };
+
+
+
 
 
 module.exports.updateProject = async (req, res) => {
@@ -76,20 +109,22 @@ module.exports.updateProject = async (req, res) => {
     // Update project fields
     await project.update(
       {
-        name,
+        project_id,
+        title,
+        type,
         description,
-        status,
-        budget,
-        funding,
-        startDate,
-        endDate,
+        total_value,
+        approved_funding,
+        implementation_startDate,
+        implementation_endDate
+      
       }
     );
     res.status(200).json({ message: 'Project updated successfully', project });
   } catch (error) {
     // Rollback the transaction if any error occurs
 
-    res.status(500).json({ message: 'Failed to update project', error: error.message });
+    res.status(500).json({ message: 'Failed to update project', error:error.errors[0].message });
   }
 };
 
@@ -139,7 +174,7 @@ module.exports.deleteProject = async (req, res) => {
   } catch (error) {
     // Rollback the transaction if any error occurs
     await transaction.rollback();
-    res.status(500).json({ message: 'Failed to delete project', error: error.message });
+    res.status(500).json({ message: 'Failed to delete project', error:error.errors[0].message });
   }
 };
 

@@ -46,6 +46,8 @@ const leaveRequestRouter = require('./routes/leaveRequests')
 const todoRouter = require('./routes/todo')
 
 const cardRouter = require('./routes/cards')
+const cost_categories_Router = require('./routes/cost_categories')
+const cost_categories_table_Router = require('./routes/cost_category_table')
 
 const {isAuthenticated} = require('./middleware/auth');
 
@@ -152,6 +154,10 @@ app.use('/todos', todoRouter)
 
 
 app.use('/cards', cardRouter)
+app.use('/cost_categories', cost_categories_Router)
+app.use('/cost_categories_tables', cost_categories_table_Router)
+
+
 // Test route to verify server is running
 
 
@@ -232,7 +238,7 @@ app.post('/foldersUpload/:uuid/:folderPath?/:currentFolderId?', upload.array('fi
 });
 
 
-app.get('/', (req, res) => {
+app.get('/hello', (req, res) => {
     res.send('Hello World');
   });
   

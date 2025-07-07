@@ -1,7 +1,7 @@
 const {Cost_category_table} = require('../models')
-const model = require('../models')
 
-console.log(model)
+
+
 module.exports.get_cost_categories_table = async (req, res)=>{
  const {uuid} = req.params
   const cost_categories_tables = await Cost_category_table.findAll({where: { cost_category_Id: uuid} })

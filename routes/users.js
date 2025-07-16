@@ -5,7 +5,7 @@ const {verifyToken} = require('../middleware/verifyToken')
 const {authenticateJwt} =require('../middleware/auth')
 
 
-const { login, signUp , profile , refreshToken,approveUser, forgotPass,getPendingUsers, resetPassword} = require('../controllers/users')
+const { login, signUp , profile ,logout, refreshToken,approveUser, forgotPass,getPendingUsers,restoreRecords, getUserArchivedRecords, resetPassword} = require('../controllers/users')
 
 // const isAuthenticated = require('../middleware/isAuthenticated');
 
@@ -18,6 +18,11 @@ userRouter.get('/:id/approved', approveUser)
 userRouter.post('/refresh-token',  refreshToken); 
 userRouter.get('/profile', authenticateJwt,  profile)
 userRouter.post('/forgotPassword',  forgotPass)
+userRouter.get('/archived',authenticateJwt,getUserArchivedRecords )
+userRouter.get('/restore/:uuid',authenticateJwt,restoreRecords )
+
+
+userRouter.post('/logout', logout)
 
 /**
  * @swagger

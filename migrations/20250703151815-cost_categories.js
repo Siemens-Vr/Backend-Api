@@ -27,7 +27,7 @@ module.exports = {
         title: {
           type: Sequelize.STRING,
           allowNull: false,
-          unique:true
+          unique:false
         },
         milestoneId: {
           type: Sequelize.UUID,

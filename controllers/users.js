@@ -9,6 +9,7 @@ const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const dotenv = require('dotenv');
 const { Op } = require('sequelize');
 const { nanoid } = require('nanoid');
+const {ArchiveService} = require('../services/auditTrail')
 
 
 
@@ -163,32 +164,58 @@ module.exports.signUp = async (req, res) => {
 module.exports.login = async (req, res, next) => {
   passport.authenticate('local', { session: false }, async (err, user, info) => {
     if (err) return next(err);
-    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
-
-    if (!user.isApproved) {
-      return res.status(403).json({ approvalRequired: true });
+    
+    if (!user) {
+      return res.status(201).json({ 
+        success: false,
+        message: 'Invalid credentials',
+        error: 'INVALID_CREDENTIALS'
+      });
     }
 
+    
+    if (!user.isApproved) {
+      return res.status(202).json({ 
+        success: false,
+        message: 'Account approval required. Please contact administrator.',
+        error: 'APPROVAL_REQUIRED',
+        approvalRequired: true 
+      });
+    }
+
+   
     const accessToken = generateToken(user);
     const refreshToken = await generateRefreshToken(user);
+    
+    
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: SEVEN_DAYS,
+    });
 
-       // Set refresh token in HTTP-only cookie
-       res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Strict',
-        maxAge: SEVEN_DAYS,
-      });
-
+   
     if (user.isDefaultPassword) {
-      return res.status(403).json({
-        message: 'You must change your password before proceeding',
-        changePasswordRequired: true,
+      return res.status(200).json({
+        success: true,
+        message: 'Login successful but password change required',
+        user,
         accessToken,
+        refreshToken, 
+        changePasswordRequired: true,
+        requirePasswordChange: true
       });
     }
 
-    res.status(200).json({ user, accessToken, message: 'Login successful' });
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Login successful',
+      user,
+      accessToken,
+      refreshToken
+    });
   })(req, res, next);
 };
 
@@ -358,3 +385,204 @@ module.exports.approveUser = async (req, res) => {
     return res.status(500).json({ message: "Server error: " + error.message });
   }
 };
+
+
+
+// Add this to your auth controller file
+
+// Logout function
+module.exports.logout = async (req, res) => {
+  try {
+    console.log("🚪 Logout request received");
+    
+    // Get the refresh token from the HTTP-only cookie
+    const refreshToken = req.cookies?.refreshToken;
+    
+    if (refreshToken) {
+      console.log("🔍 Found refresh token, removing from database");
+      
+      // Remove the refresh token from the database
+      const deletedCount = await RefreshToken.destroy({
+        where: { token: refreshToken }
+      });
+      
+      console.log(`🗑️ Deleted ${deletedCount} refresh token(s) from database`);
+    } else {
+      console.log("⚠️ No refresh token found in cookies");
+    }
+    
+    // Clear the refresh token cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      path: '/' // Make sure path matches the original cookie
+    });
+    
+    console.log("🧹 Cleared refresh token cookie");
+    
+    // Return success response
+    res.status(200).json({ 
+      success: true,
+      message: 'Logged out successfully' 
+    });
+    
+  } catch (error) {
+    console.error('❌ Error during logout:', error);
+    
+    // Even if there's an error, clear the cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      path: '/'
+    });
+    
+    res.status(500).json({ 
+      success: false,
+      message: 'Logout failed, but session cleared locally',
+      error: error.message 
+    });
+  }
+};
+
+// Optional: Logout from all devices function
+module.exports.logoutAll = async (req, res) => {
+  try {
+    console.log("🚪🌍 Logout all devices request received");
+    
+    // Get user ID from the JWT token (req.user should be set by your auth middleware)
+    const userId = req.user?.uuid;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+    
+    console.log(`🔍 Removing all refresh tokens for user: ${userId}`);
+    
+    // Remove ALL refresh tokens for this user from the database
+    const deletedCount = await RefreshToken.destroy({
+      where: { userId: userId }
+    });
+    
+    console.log(`🗑️ Deleted ${deletedCount} refresh token(s) for user ${userId}`);
+    
+    // Clear the current refresh token cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      path: '/'
+    });
+    
+    console.log("🧹 Cleared current refresh token cookie");
+    
+    res.status(200).json({ 
+      success: true,
+      message: `Logged out from all devices successfully. Removed ${deletedCount} active sessions.` 
+    });
+    
+  } catch (error) {
+    console.error('❌ Error during logout all:', error);
+    
+    // Clear the current cookie even if DB operation fails
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      path: '/'
+    });
+    
+    res.status(500).json({ 
+      success: false,
+      message: 'Logout from all devices failed, but current session cleared',
+      error: error.message 
+    });
+  }
+};
+
+// Optional: Clean up expired refresh tokens (utility function)
+module.exports.cleanupExpiredTokens = async (req, res) => {
+  try {
+    console.log("🧹 Cleaning up expired refresh tokens");
+    
+    const deletedCount = await RefreshToken.destroy({
+      where: {
+        expiresAt: {
+          [Op.lt]: new Date() // Less than current date (expired)
+        }
+      }
+    });
+    
+    console.log(`🗑️ Cleaned up ${deletedCount} expired refresh tokens`);
+    
+    res.status(200).json({ 
+      success: true,
+      message: `Cleaned up ${deletedCount} expired tokens` 
+    });
+    
+  } catch (error) {
+    console.error('❌ Error cleaning up expired tokens:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to cleanup expired tokens',
+      error: error.message 
+    });
+  }
+};
+
+
+
+module.exports.getUserArchivedRecords =async(req, res)=>{
+
+  try {
+    const userId = req.user.uuid; 
+    console.log(userId)
+    
+    const result = await ArchiveService.getAllUserArchivedRecords(userId);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Your archived records retrieved successfully',
+      ...result
+    });
+
+  } catch (error) {
+    console.error('Error fetching user archived records:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch archived records',
+      error: error.message
+    });
+  }
+
+
+
+}
+
+module.exports.restoreRecords = async(req, res)=>{
+  try{
+    const recordId = req.params.uuid
+    const userId = req.user.uuid;
+    console.log(recordId)
+    const result = await ArchiveService.restoreRecordById(recordId, userId)
+
+    res.status(200).json({
+      success: true,
+      message: 'Your archived record restored successfully',
+      ...result
+    });
+
+  }catch(error){
+    console.error('Error restoring record:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error restoring record',
+      error: error.message
+    });
+
+  }
+}

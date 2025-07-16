@@ -12,6 +12,11 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
+      no:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -20,13 +25,28 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      completionDate: {
-        type: Sequelize.DATEONLY,
-        allowNull: false,
-      },
-      status: {
+      document_path: {
         type: Sequelize.STRING,
+        allowNull: true,
+      },
+      document_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      value: {
+        type: Sequelize.INTEGER,
         allowNull: false,
+        defaultValue: 0,
+        validate: {
+          isIn: [[0, 1]]
+        },
+        comment: 'Value can only be 0 or 1'
+      },
+      is_approved: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: 'Approval status of the output'
       },
       milestoneId: {
         type: Sequelize.UUID,

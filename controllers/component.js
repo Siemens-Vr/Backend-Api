@@ -90,41 +90,61 @@ module.exports.getComponents = async (req, res) => {
 
 
 module.exports.updateComponentQuantity = async (req, res) => {
-    const componentId = req.params.id;
-    // console.log(c)
-    const { quantity } = req.body;
+  const componentId = req.params.id;
+  const { quantity } = req.body;
 
-    // console.log("Component ID: ", componentId);
+  const transaction = await sequelize.transaction();
 
-    const transaction = await sequelize.transaction();
+  try {
+      const component = await Component.findOne({ 
+          where: { uuid: componentId }, 
+          transaction 
+      });
 
-    try {
-      const component = await Component.findOne({ where: { uuid: componentId }, transaction });
-
-      if (component) {
-        await ComponentsQuantity.create(
-          {
-            componentUUID: componentId,
-            quantity,
-          },
-          {
-            transaction
-          }
-        );
-
-        await transaction.commit();
-
-        res.status(200).json({ message: "Quantity updated successfully" });
-      } else {
-        await transaction.rollback();
-        res.status(404).json({ message: "Component not found" });
+      if (!component) {
+          await transaction.rollback();
+          return res.status(404).json({ message: "Component not found" });
       }
-    } catch (error) {
+
+      // Find existing quantity record
+      const existingQuantity = await ComponentsQuantity.findOne({
+          where: { componentUUID: componentId },
+          transaction
+      });
+
+      if (existingQuantity) {
+          // Store the previous quantity BEFORE updating
+          const previousQuantity = existingQuantity.quantity;
+          const newQuantity = previousQuantity + quantity;
+          
+          // Update with the new quantity
+          await existingQuantity.update({ 
+              quantity: newQuantity 
+          }, { transaction });
+
+          await transaction.commit();
+
+          res.status(200).json({ 
+              message: "Quantity updated successfully",
+              componentId: componentId,
+              previousQuantity: previousQuantity,
+              addedQuantity: quantity,
+              newQuantity: newQuantity
+          });
+      } else {
+      
+          res.status(404).json({ 
+              message: "component not found in the database",
+            
+          });
+      }
+
+  } catch (error) {
       await transaction.rollback();
-      console.log(error);
+      console.error('Error updating component quantity:', error);
       res.status(500).json({ message: error.message });
-    }
-  },
+  }
+};
 
 
 
@@ -198,7 +218,7 @@ module.exports.getComponentsType = async (req, res) => {
       console.log(result)
       res.status(200).json(result);
     } else {
-      res.status(404).json({ message: "No components found" });
+      res.json({ message: "No components found" });
     }
   } catch (error) {
     console.error(error);
@@ -382,46 +402,46 @@ module.exports.updateComponent = async (req, res) => {
   }
 };
 
-module.exports.updateComponentQuantity= async (req, res) => {
-  console.log(req.body)
-  const { error } = validateComponentsQuantity(req.body);
-  if (error) {
-    return res.status(400).json({ error: error.details.map(err => err.message) });
-  }
-    const componentId = req.params.id;
-    const { quantity } = req.body;
+// module.exports.updateComponentQuantity= async (req, res) => {
+//   console.log(req.body)
+//   const { error } = validateComponentsQuantity(req.body);
+//   if (error) {
+//     return res.status(400).json({ error: error.details.map(err => err.message) });
+//   }
+//     const componentId = req.params.id;
+//     const { quantity } = req.body;
 
-    console.log("Component ID: ", componentId);
+//     console.log("Component ID: ", componentId);
 
-    const transaction = await sequelize.transaction();
+//     const transaction = await sequelize.transaction();
 
-    try {
-      const component = await Component.findOne({ where: { uuid: componentId }, transaction });
+//     try {
+//       const component = await Component.findOne({ where: { uuid: componentId }, transaction });
 
-      if (component) {
-        await ComponentsQuantity.create(
-          {
-            componentUUID: componentId,
-            quantity,
-          },
-          {
-            transaction
-          }
-        );
+//       if (component) {
+//         await ComponentsQuantity.create(
+//           {
+//             componentUUID: componentId,
+//             quantity,
+//           },
+//           {
+//             transaction
+//           }
+//         );
 
-        await transaction.commit();
+//         await transaction.commit();
 
-        res.status(200).json({ message: "Quantity updated successfully" });
-      } else {
-        await transaction.rollback();
-        res.status(404).json({ message: "Component not found" });
-      }
-    } catch (error) {
-      await transaction.rollback();
-      console.log(error);
-      res.status(500).json({ message: error.message });
-    }
-  },
+//         res.status(200).json({ message: "Quantity updated successfully" });
+//       } else {
+//         await transaction.rollback();
+//         res.status(404).json({ message: "Component not found" });
+//       }
+//     } catch (error) {
+//       await transaction.rollback();
+//       console.log(error);
+//       res.status(500).json({ message: error.message });
+//     }
+//   },
 
 
 

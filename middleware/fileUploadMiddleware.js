@@ -28,6 +28,10 @@ const upload = multer({
       else if (file.fieldname === 'cost_category') {
         uploadDir = 'cost_category';
       } 
+      else if (file.fieldname === 'output') {
+        uploadDir = 'outputs';
+      } 
+  
   
       cb(null, path.join(__dirname, '..', 'uploads', uploadDir));
     },
@@ -42,6 +46,7 @@ const upload = multer({
   { name: 'procurement', maxCount: 20 },
   { name: 'transport', maxCount: 20 }, 
   { name: 'cost_category', maxCount: 20 }, 
+  { name: 'output', maxCount: 20 }, 
 
 ]);
 

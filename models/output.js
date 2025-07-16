@@ -3,20 +3,14 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Output extends Model {
-    static associate({ Milestone, Document }) {
+    static associate({ Milestone }) {
       this.belongsTo(Milestone, {
         foreignKey: 'milestoneId',
         as: 'milestone',
       });
 
-      this.hasMany(Document, {
-        foreignKey: 'outputId',
-        as: 'documents',
-      });
-      
+ 
     }
-
-    
   }
 
   Output.init({
@@ -24,6 +18,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       type: DataTypes.UUID,
+    },
+    no:{
+      type: DataTypes.INTEGER,
+      allowNull: false,
+
     },
     name: {
       type: DataTypes.STRING,
@@ -33,13 +32,29 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    completionDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    status: {
+    document_path: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    document_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    value: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        isIn: {
+          args: [[0, 1]],
+          msg: 'Value must be either 0 or 1'
+        }
+      }
+    },
+    is_approved: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     milestoneId: {
       type: DataTypes.UUID, 
@@ -51,16 +66,14 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE', 
       onUpdate: 'CASCADE',
     },
-
     createdAt: {
-        allowNull: false,
-        type: DataTypes.DATE,
-      },
-      updatedAt: {
-        allowNull: false,
-        type: DataTypes.DATE,
-      },
-
+      allowNull: false,
+      type: DataTypes.DATE,
+    },
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+    },
   }, {
     sequelize,
     modelName: 'Output',

@@ -4,3 +4,369 @@ git checkout -b  name - create a new branch
 git checkout  - enter into the new branch
 
 http://localhost:3000/dashboard/cohorts/levels/12?cohortsData=%7B%22cohorts%22%3A%7B%22id%22%3A6%2C%22uuid%22%3A%22d527beab-3018-4c7b-a18d-6fb9f571101e%22%2C%22cohortName%22%3A%22Cohort+5%22%2C%22startDate%22%3A%222024-04-14%22%2C%22endDate%22%3A%222024-05-14%22%2C%22createdAt%22%3A%222024-05-30T10%3A00%3A02.458Z%22%2C%22updatedAt%22%3A%222024-05-30T10%3A00%3A02.458Z%22%7D%2C%22levels%22%3A%5B%7B%22id%22%3A12%2C%22uuid%22%3A%2225acb16f-81dd-4b2d-9112-04ef48c700ed%22%2C%22levelName%22%3A%22level+1%22%2C%22startDate%22%3A%222024-04-14%22%2C%22endDate%22%3A%222024-05-14%22%2C%22createdAt%22%3A%222024-05-30T10%3A01%3A06.158Z%22%2C%22updatedAt%22%3A%222024-05-30T10%3A01%3A06.158Z%22%2C%22cohortId%22%3A%22d527beab-3018-4c7b-a18d-6fb9f571101e%22%2C%22students%22%3A%5B%5D%2C%22facilitators%22%3A%5B%7B%22id%22%3A1%2C%22uuid%22%3A%22a690681d-f4f9-475d-b7d7-2a3da7625f5e%22%2C%22firstName%22%3A%22Edward%22%2C%22lastName%22%3A%22Wilson%22%2C%22email%22%3A%22edwardwilson%40example.com%22%2C%22gender%22%3A%22Male%22%2C%22idNo%22%3A%22147258369%22%2C%22phoneNo%22%3A147258369%2C%22createdAt%22%3A%222024-05-29T07%3A34%3A37.556Z%22%2C%22updatedAt%22%3A%222024-05-29T07%3A34%3A37.556Z%22%7D%5D%7D%2C%7B%22id%22%3A13%2C%22uuid%22%3A%22cb10758a-1afe-433b-a51d-b696cf2690cd%22%2C%22levelName%22%3A%22level+3%22%2C%22startDate%22%3A%222024-04-14%22%2C%22endDate%22%3A%222024-05-14%22%2C%22createdAt%22%3A%222024-05-30T10%3A01%3A23.427Z%22%2C%22updatedAt%22%3A%222024-05-30T10%3A01%3A23.427Z%22%2C%22cohortId%22%3A%22d527beab-3018-4c7b-a18d-6fb9f571101e%22%2C%22students%22%3A%5B%7B%22uuid%22%3A%22164759b2-81b4-4de3-88af-1cc64a487c8e%22%2C%22firstName%22%3A%22jane%22%2C%22lastName%22%3A%22deo%22%2C%22email%22%3A%22mcha%40gmail.com%22%2C%22phone%22%3Anull%2C%22regNo%22%3A%2212268665%22%2C%22kcseNo%22%3A%2212888935%22%2C%22idNo%22%3A17333598%2C%22feePayment%22%3A%22paid%22%2C%22examResults%22%3Anull%2C%22createdAt%22%3A%222024-05-30T10%3A02%3A22.861Z%22%2C%22updatedAt%22%3A%222024-05-30T10%3A02%3A22.861Z%22%7D%5D%2C%22facilitators%22%3A%5B%7B%22id%22%3A1%2C%22uuid%22%3A%22a690681d-f4f9-475d-b7d7-2a3da7625f5e%22%2C%22firstName%22%3A%22Edward%22%2C%22lastName%22%3A%22Wilson%22%2C%22email%22%3A%22edwardwilson%40example.com%22%2C%22gender%22%3A%22Male%22%2C%22idNo%22%3A%22147258369%22%2C%22phoneNo%22%3A147258369%2C%22createdAt%22%3A%222024-05-29T07%3A34%3A37.556Z%22%2C%22updatedAt%22%3A%222024-05-29T07%3A34%3A37.556Z%22%7D%5D%7D%5D%7D
+
+
+
+
+// Soft Delete File (Mark as deleted)
+module.exports.softDeleteFile = async (req, res) => {
+  const { uuid } = req.params;
+
+  if (!uuid) {
+    return res.status(400).json({ 
+      error: 'UUID parameter is required' 
+    });
+  }
+
+  try {
+    // Check if file exists
+    const file = await Cost_cat_entries_files.findByPk(uuid);
+    if (!file) {
+      return res.status(404).json({ 
+        error: 'File not found' 
+      });
+    }
+
+    // Check if file is already deleted
+    if (file.is_deleted) {
+      return res.status(400).json({ 
+        error: 'File is already deleted' 
+      });
+    }
+
+    // Mark file as deleted
+    const updatedFile = await file.update({
+      is_deleted: true,
+      deleted_at: new Date(),
+      deleted_by: req.user?.id || null // If you have user authentication
+    });
+
+    console.log('File soft deleted successfully:', uuid);
+    
+    return res.status(200).json({
+      success: true,
+      message: 'File deleted successfully',
+      data: updatedFile
+    });
+
+  } catch (error) {
+    console.error('Error soft deleting file:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to delete file'
+    });
+  }
+};
+
+// Restore Deleted File
+module.exports.restoreFile = async (req, res) => {
+  const { uuid } = req.params;
+
+  if (!uuid) {
+    return res.status(400).json({ 
+      error: 'UUID parameter is required' 
+    });
+  }
+
+  try {
+    // Find the deleted file
+    const file = await Cost_cat_entries_files.findByPk(uuid);
+    if (!file) {
+      return res.status(404).json({ 
+        error: 'File not found' 
+      });
+    }
+
+    // Check if file is actually deleted
+    if (!file.is_deleted) {
+      return res.status(400).json({ 
+        error: 'File is not deleted' 
+      });
+    }
+
+    // Restore the file
+    const restoredFile = await file.update({
+      is_deleted: false,
+      deleted_at: null,
+      deleted_by: null,
+      restored_at: new Date(),
+      restored_by: req.user?.id || null
+    });
+
+    console.log('File restored successfully:', uuid);
+    
+    return res.status(200).json({
+      success: true,
+      message: 'File restored successfully',
+      data: restoredFile
+    });
+
+  } catch (error) {
+    console.error('Error restoring file:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to restore file'
+    });
+  }
+};
+
+// Archive File (Alternative approach)
+module.exports.archiveFile = async (req, res) => {
+  const { uuid } = req.params;
+  const { reason } = req.body; // Optional reason for archiving
+
+  if (!uuid) {
+    return res.status(400).json({ 
+      error: 'UUID parameter is required' 
+    });
+  }
+
+  try {
+    const file = await Cost_cat_entries_files.findByPk(uuid);
+    if (!file) {
+      return res.status(404).json({ 
+        error: 'File not found' 
+      });
+    }
+
+    if (file.status === 'archived') {
+      return res.status(400).json({ 
+        error: 'File is already archived' 
+      });
+    }
+
+    // Archive the file
+    const archivedFile = await file.update({
+      status: 'archived',
+      archived_at: new Date(),
+      archived_by: req.user?.id || null,
+      archive_reason: reason || null
+    });
+
+    console.log('File archived successfully:', uuid);
+    
+    return res.status(200).json({
+      success: true,
+      message: 'File archived successfully',
+      data: archivedFile
+    });
+
+  } catch (error) {
+    console.error('Error archiving file:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to archive file'
+    });
+  }
+};
+
+// Unarchive File
+module.exports.unarchiveFile = async (req, res) => {
+  const { uuid } = req.params;
+
+  if (!uuid) {
+    return res.status(400).json({ 
+      error: 'UUID parameter is required' 
+    });
+  }
+
+  try {
+    const file = await Cost_cat_entries_files.findByPk(uuid);
+    if (!file) {
+      return res.status(404).json({ 
+        error: 'File not found' 
+      });
+    }
+
+    if (file.status !== 'archived') {
+      return res.status(400).json({ 
+        error: 'File is not archived' 
+      });
+    }
+
+    // Unarchive the file
+    const unarchivedFile = await file.update({
+      status: 'active',
+      archived_at: null,
+      archived_by: null,
+      archive_reason: null,
+      unarchived_at: new Date(),
+      unarchived_by: req.user?.id || null
+    });
+
+    console.log('File unarchived successfully:', uuid);
+    
+    return res.status(200).json({
+      success: true,
+      message: 'File unarchived successfully',
+      data: unarchivedFile
+    });
+
+  } catch (error) {
+    console.error('Error unarchiving file:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to unarchive file'
+    });
+  }
+};
+
+// Get Active Files (excludes deleted/archived)
+module.exports.getActiveFiles = async (req, res) => {
+  const { uuid } = req.params;
+
+  if (!uuid) {
+    return res.status(400).json({ 
+      error: 'UUID parameter is required' 
+    });
+  }
+
+  try {
+    const documents = await Cost_cat_entries_files.findAll({
+      where: { 
+        cost_category_folder_id: uuid,
+        // For soft delete approach
+        is_deleted: false,
+        // OR for status-based approach
+        // status: 'active'
+      },
+      order: [['createdAt', 'ASC']]
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: documents,
+      count: documents.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching active files:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to fetch files'
+    });
+  }
+};
+
+// Get Deleted Files (for admin/recovery purposes)
+module.exports.getDeletedFiles = async (req, res) => {
+  const { uuid } = req.params;
+
+  if (!uuid) {
+    return res.status(400).json({ 
+      error: 'UUID parameter is required' 
+    });
+  }
+
+  try {
+    const documents = await Cost_cat_entries_files.findAll({
+      where: { 
+        cost_category_folder_id: uuid,
+        is_deleted: true
+      },
+      order: [['deleted_at', 'DESC']]
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: documents,
+      count: documents.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching deleted files:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to fetch deleted files'
+    });
+  }
+};
+
+// Get Archived Files
+module.exports.getArchivedFiles = async (req, res) => {
+  const { uuid } = req.params;
+
+  if (!uuid) {
+    return res.status(400).json({ 
+      error: 'UUID parameter is required' 
+    });
+  }
+
+  try {
+    const documents = await Cost_cat_entries_files.findAll({
+      where: { 
+        cost_category_folder_id: uuid,
+        status: 'archived'
+      },
+      order: [['archived_at', 'DESC']]
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: documents,
+      count: documents.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching archived files:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to fetch archived files'
+    });
+  }
+};
+
+// Permanent Delete (for admin use only)
+module.exports.permanentDeleteFile = async (req, res) => {
+  const { uuid } = req.params;
+
+  if (!uuid) {
+    return res.status(400).json({ 
+      error: 'UUID parameter is required' 
+    });
+  }
+
+  try {
+    const file = await Cost_cat_entries_files.findByPk(uuid);
+    if (!file) {
+      return res.status(404).json({ 
+        error: 'File not found' 
+      });
+    }
+
+    // Optional: Only allow permanent deletion of already soft-deleted files
+    if (!file.is_deleted && file.status !== 'archived') {
+      return res.status(400).json({ 
+        error: 'File must be deleted or archived before permanent deletion' 
+      });
+    }
+
+    // Delete file from filesystem
+    const fs = require('fs');
+    if (file.path && fs.existsSync(file.path)) {
+      try {
+        fs.unlinkSync(file.path);
+        console.log('File deleted from filesystem:', file.path);
+      } catch (fsError) {
+        console.warn('Could not delete file from filesystem:', fsError.message);
+      }
+    }
+
+    // Permanently delete from database
+    await file.destroy();
+
+    console.log('File permanently deleted:', uuid);
+    
+    return res.status(200).json({
+      success: true,
+      message: 'File permanently deleted'
+    });
+
+  } catch (error) {
+    console.error('Error permanently deleting file:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to permanently delete file'
+    });
+  }
+};

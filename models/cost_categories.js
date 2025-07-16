@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       title: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique:true
+        unique:false
       },
       milestoneId: {
         type: DataTypes.UUID,

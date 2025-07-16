@@ -5,14 +5,25 @@ const {
   getAllOutputs,
   getOutputById,
   updateOutputById,
-  deleteOutputById,
+  archiveOutputById,
+  bulkCreateOutputs,
+  bulkEditOutputs,
+  bulkGetOutputs
 } = require('../controllers/output');
+const {upload} = require('../middleware/fileUploadMiddleware');
+
 
 // Define routes
-router.post('/:milestoneId', createOutput);
+router.post('/bulk-create',upload, bulkCreateOutputs)
+router.put('/bulk-edit',upload, bulkEditOutputs)
+router.get('/bulk-get/:projectId', bulkGetOutputs)
+
+router.post('/:milestoneId', upload,  createOutput);
 router.get('/:milestoneId', getAllOutputs);
-router.get('/:milestoneId/:id', getOutputById);
-router.put('/:milestoneId/:id', updateOutputById);
-router.delete('/:milestoneId/:id', deleteOutputById);
+router.get('/single/:id', getOutputById);
+router.put('/update/:id', upload, updateOutputById);
+router.post('/:id/archive', archiveOutputById);
+
+// router.delete('/milestones/:id', deleteOutputById);
 
 module.exports = router;

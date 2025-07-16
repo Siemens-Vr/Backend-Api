@@ -3,10 +3,8 @@ require('dotenv').config()
 
 exports.verifyToken = (req, res, next) => {
 
-
   const token = req.headers.authorization?.split(' ')[1];
-
-  
+  console.log(token)
   if (!token) {
     req.userId = null; // Allow execution to continue
     return next();
@@ -17,7 +15,7 @@ exports.verifyToken = (req, res, next) => {
     req.userId = decoded.userId;
   } catch (error) {
     console.error("Error in verifyToken:", error);
-    req.userId = null; // Continue without stopping execution
+    req.userId = null; 
   }
 
   next();

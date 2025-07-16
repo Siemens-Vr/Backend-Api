@@ -1,5 +1,6 @@
 const { Milestone } = require("../models"); 
 const path=require('path')
+const {ArchiveService} = require('../services/auditTrail')
 
 // Create a new milestone
 module.exports.createMilestone = async (req, res) => {
@@ -63,7 +64,7 @@ module.exports.getMilestoneById = async (req, res) => {
 
 // Update a milestone by UUID
 module.exports.updateMilestone = async (req, res) => {
-  console.log(req.body)
+  // console.log(req.body)
   try {
     const { uuid } = req.params;
     const {     
@@ -72,8 +73,9 @@ module.exports.updateMilestone = async (req, res) => {
       description,
       implementation_startDate,
       implementation_endDate,
-      status
-     } = req.body;
+      status,
+      projectId  // ADD: Extract projectId from request body
+    } = req.body;
 
     const milestone = await Milestone.findOne({ where: { uuid } });
 
@@ -81,36 +83,65 @@ module.exports.updateMilestone = async (req, res) => {
       return res.status(404).json({ message: "Milestone not found" });
     }
 
-    await milestone.update({    
-      no,
-      title, 
-      description,
-      implementation_startDate,
-      implementation_endDate,
-      status,
-      projectId });
+    // Prepare update data - only include fields that are provided
+    const updateData = {};
+    
+    if (no !== undefined) updateData.no = no;
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (implementation_startDate !== undefined) updateData.implementation_startDate = implementation_startDate;
+    if (implementation_endDate !== undefined) updateData.implementation_endDate = implementation_endDate;
+    if (status !== undefined) updateData.status = status;
+   
+
+    await milestone.update(updateData);
 
     res.status(200).json({ message: "Milestone updated successfully", milestone });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update milestone", error:error.errors[0].message });
+    console.error("Error updating milestone:", error);
+    
+    // Better error handling
+    if (error.errors && error.errors[0]) {
+      res.status(500).json({ 
+        message: "Failed to update milestone", 
+        error: error.errors[0].message 
+      });
+    } else {
+      res.status(500).json({ 
+        message: "Failed to update milestone", 
+        error: error.message || "Unknown error occurred" 
+      });
+    }
   }
 };
 
-// Delete a milestone by UUID
-module.exports.deleteMilestone = async (req, res) => {
+
+
+module.exports.archiveMilestoneById = async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+
+
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = forwarded
+    ? forwarded.split(',')[0].trim()
+    : req.connection.remoteAddress;
+
   try {
-    const { uuid } = req.params;
+    const result = await ArchiveService.archiveRecord(
+      Milestone,
+      id,
+      req.user?.uuid,
+      reason,
+      { source: 'api', ip: ip }
+    );
 
-    const milestone = await Milestone.findOne({ where: { uuid } });
+    return res.status(200).json(result);
 
-    if (!milestone) {
-      return res.status(404).json({ message: "Milestone not found" });
-    }
-
-    await milestone.destroy();
-
-    res.status(200).json({ message: "Milestone deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to delete milestone", error:error.errors[0].message });
+    console.error('Error archiving output:', error);
+    return res.status(400).json({
+      error: error.message
+    });
   }
 };

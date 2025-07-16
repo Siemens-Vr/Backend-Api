@@ -18,13 +18,13 @@ module.exports = {
       no:{
         allowNull: false,
         type: Sequelize.INTEGER,
-        unique:true
+        
 
       },
       title: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique:true
+      
       },
       description: {
         type: Sequelize.STRING,

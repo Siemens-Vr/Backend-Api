@@ -1,8 +1,10 @@
-const { Project, Assignee, Phase, Deliverable,Milestone,  sequelize } = require('../models'); 
+const { Project, Milestone,Output ,  sequelize } = require('../models'); 
 const path = require('path');
-
+const {ArchiveService}= require('../services/auditTrail')
 
   module.exports.createProject=async (req,res)=> {
+
+   
     const {
       project_id,
       title,
@@ -43,15 +45,16 @@ const path = require('path');
 module.exports.getAllProjects = async (req, res) => {
   try {
     // Fetch all projects from the database
-    const projects = await Project.findAll();
-
-    //  Check if there are no projects
-    if (!projects || projects.length === 0) {
-      return res.status(404).json({ message: 'No projects found' });
-    }
-
+    const { data: projects, count } = await ArchiveService.getActiveRecords(
+      Project,
+      {},
+      {
+        include: [ /* …eager loads… */ ],
+        order: [ /* … */ ]
+      }
+    );
     //  Return the projects
-    res.status(200).json(projects);
+    return res.json({ success: true, count, projects });
   } catch (error) {
     console.error('Error retrieving projects:', error);
     res.status(500).json({ message: 'Failed to retrieve projects', error:error.errors[0].message});
@@ -61,28 +64,83 @@ module.exports.getAllProjects = async (req, res) => {
 
 
 // Module to getProjectById
+// module.exports.getProjectById = async (req, res) => {
+//   const { uuid } = req.params;
+
+//   try {
+//     const project = await Project.findOne({
+//       where: { uuid },
+//       include: [{
+//         model: Milestone,
+//         as: 'milestones',
+//         separate: true,
+//         order: [['no', 'ASC']],
+//         required: false,
+//       }],
+//     });
+
+//     if (!project) {
+//       return res.status(404).json({ message: 'Project not found' });
+//     }
+
+//     res.status(200).json(project);
+//   } catch (error) {
+//     res.status(500).json({
+//       message: 'Failed to retrieve project',
+//       error: error.message
+//     });
+//   }
+// };
+
 module.exports.getProjectById = async (req, res) => {
-  const { uuid } = req.params;
+  const uuid = req.params.uuid;
+  // console.log(uuid)
 
   try {
-    const project = await Project.findOne({
-      where: { uuid },
-      include: [{
-        model: Milestone,
-        as: 'milestones',
-        separate: true,
-        order: [['no', 'ASC']],
-        required: false,
-      }],
-    });
+    // // 1) Load the active project by UUID
+    const activeProjectResult = await ArchiveService.getActiveRecords(
+      Project,
+  
+    );
+    const project = activeProjectResult.data.find(p => p.uuid === uuid);
 
     if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
+      return res.status(404).json({ message: 'Project not found or inactive' });
     }
+    // const project = await Project.findOne({where:{uuid}});
 
-    res.status(200).json(project);
+    // 2) Load active milestones for this project
+    const activeMilestonesResult = await ArchiveService.getActiveRecords(
+      Milestone,
+      { projectId: uuid },
+      { order: [['no', 'ASC']] }
+    );
+    const milestones = activeMilestonesResult.success
+      ? activeMilestonesResult.data
+      : [];
+
+    // 3) For each milestone, load its active outputs
+    await Promise.all(
+      milestones.map(async (ms) => {
+        const activeOutputsResult = await ArchiveService.getActiveRecords(
+          Output,
+          { milestoneId: ms.uuid },
+          { order: [['no', 'ASC']] }
+        );
+        // Attach outputs array (or empty) under ms.dataValues.outputs
+        ms.dataValues.outputs = activeOutputsResult.success
+          ? activeOutputsResult.data
+          : [];
+      })
+    );
+
+    // 4) Attach milestones (with outputs) to the project payload
+    project.dataValues.milestones = milestones;
+
+    return res.status(200).json(project);
   } catch (error) {
-    res.status(500).json({
+    console.error('Failed to retrieve project:', error);
+    return res.status(500).json({
       message: 'Failed to retrieve project',
       error: error.message
     });
@@ -91,90 +149,88 @@ module.exports.getProjectById = async (req, res) => {
 
 
 
-
-
 module.exports.updateProject = async (req, res) => {
   const { uuid } = req.params;
-
-  const project  = req.body;
-
+  const {
+    title,
+    type,
+    description,
+    total_value,
+    approved_funding,
+    implementation_startDate,
+    implementation_endDate
+  } = req.body;
 
   try {
-    // Step 1: Update the Project
+    // 1. Fetch the project
     const project = await Project.findByPk(uuid);
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
 
-    // Update project fields
-    await project.update(
-      {
-        project_id,
-        title,
-        type,
-        description,
-        total_value,
-        approved_funding,
-        implementation_startDate,
-        implementation_endDate
-      
-      }
-    );
-    res.status(200).json({ message: 'Project updated successfully', project });
-  } catch (error) {
-    // Rollback the transaction if any error occurs
 
-    res.status(500).json({ message: 'Failed to update project', error:error.errors[0].message });
+
+    // 3. Build an “updates” object with only the supplied fields
+    const updates = {};
+    if (title                     !== undefined) updates.title                     = title.trim();
+    if (type                      !== undefined) updates.type                      = type.trim();
+    if (description               !== undefined) updates.description               = description.trim();
+    if (total_value               !== undefined) updates.total_value               = total_value;
+    if (approved_funding          !== undefined) updates.approved_funding          = approved_funding;
+    if (implementation_startDate  !== undefined) updates.implementation_startDate  = implementation_startDate;
+    if (implementation_endDate    !== undefined) updates.implementation_endDate    = implementation_endDate;
+
+    // 4. Perform the update
+    await project.update(updates);
+
+    // 5. Return the updated record
+    return res.status(200).json({
+      message: 'Project updated successfully',
+      project
+    });
+  } catch (error) {
+    console.error('Error updating project:', error);
+    // Gather validation error messages if present
+    const errorMessage = Array.isArray(error.errors)
+      ? error.errors.map(e => e.message).join('; ')
+      : error.message;
+
+    return res.status(500).json({
+      message: 'Failed to update project',
+      error: errorMessage
+    });
   }
 };
 
 
 
 
-module.exports.deleteProject = async (req, res) => {
-  const { uuid } = req.params;
-  const transaction = await sequelize.transaction();
+module.exports.archiveProjectById = async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+
+
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = forwarded
+    ? forwarded.split(',')[0].trim()
+    : req.connection.remoteAddress;
 
   try {
-    // Step 1: Find the project by UUID
-    const project = await Project.findOne({ where: { uuid } });
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
+    const result = await ArchiveService.archiveRecord(
+      Project,
+      id,
+      req.user?.uuid,
+      reason,
+      { source: 'api', ip: ip }
+    );
 
-    // Step 2: Fetch associated phases for deletion of deliverables
-    const phases = await Phase.findAll({ where: { projectId: project.uuid } });
-    const phaseIds = phases.map(phase => phase.uuid);
+    return res.status(200).json(result);
 
-    // Step 3: Delete associated deliverables
-    await Deliverable.destroy({ where: { phaseId: phaseIds }, transaction });
-
-    // Step 4: Delete associated phases
-    await Phase.destroy({ where: { projectId: project.uuid }, transaction });
-
-    // Step 5: Delete associated assignees
-    await Assignee.destroy({ where: { projectId: project.uuid }, transaction });
-
-    // Step 6: Delete the project itself
-    await project.destroy({ transaction });
-
-    // Step 7: Delete the document from the uploads folder
-    if (project.documentPath) {
-      const filePath = path.join(__dirname, '../uploads', project.documentPath);
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.error('Error deleting the file:', err);
-        }
-      });
-    }
-
-    // Commit the transaction
-    await transaction.commit();
-    res.status(200).json({ message: 'Project and associated records deleted successfully' });
   } catch (error) {
-    // Rollback the transaction if any error occurs
-    await transaction.rollback();
-    res.status(500).json({ message: 'Failed to delete project', error:error.errors[0].message });
+    console.error('Error archiving output:', error);
+    return res.status(400).json({
+      error: error.message
+    });
   }
 };
 

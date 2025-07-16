@@ -92,7 +92,7 @@ const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
 // Sign UpsendPasswordResetEmail
 module.exports.signUp = async (req, res) => {
   const userId = req.userId;
-  console.log(userId)
+  // console.log(userId)
   const { firstName, lastName, email, gender, phoneNumber, idNumber, dateJoined, password, role, confirmPassword } = req.body;
 
   try {

@@ -12,7 +12,7 @@ router.get('/users', isAuthenticated, async (req, res) => {
       include: [{
         model: User,
         as: 'user',
-        attributes: ['id', 'uuid', 'email', 'firstName', 'lastName', 'role']
+        attributes: [ 'uuid', 'email', 'firstName', 'lastName', 'role']
       }],
       order: [['lastActivity', 'DESC']]
     });
@@ -63,7 +63,7 @@ router.get('/activity', isAuthenticated, async (req, res) => {
       include: [{
         model: User,
         as: 'user',
-        attributes: ['id', 'uuid', 'email', 'firstName', 'lastName', 'role']
+        attributes: [ 'uuid', 'email', 'firstName', 'lastName', 'role']
       }],
       order: [['timestamp', 'DESC']],
       limit: parseInt(limit),

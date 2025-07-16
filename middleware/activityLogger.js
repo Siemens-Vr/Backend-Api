@@ -1,6 +1,7 @@
 const { ActivityLog } = require('../models');
 
 const activityLogger = (options = {}) => {
+
   const {
     excludeRoutes = ['/health', '/favicon.ico'],
     excludeMethods = ['OPTIONS'],
@@ -9,6 +10,7 @@ const activityLogger = (options = {}) => {
   } = options;
 
   return async (req, res, next) => {
+   
     // Skip excluded routes and methods
     if (excludeRoutes.includes(req.path) || excludeMethods.includes(req.method)) {
       return next();
@@ -40,7 +42,7 @@ const activityLogger = (options = {}) => {
 
         // Prepare log data
         const logData = {
-          userId: req.user.userId,
+          userId: req.user.uuid,
           sessionId: req.sessionId || 'unknown',
           action,
           resource,
@@ -140,5 +142,6 @@ function getErrorMessage(responseBody) {
     return 'Unknown error';
   }
 }
+
 
 module.exports = activityLogger;

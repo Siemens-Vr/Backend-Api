@@ -2,42 +2,48 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Add check constraints
-    await queryInterface.addConstraint('online_users', {
+    // Define schema-qualified table references
+    const onlineTable = { schema: 'users', tableName: 'online_users' };
+    const logsTable   = { schema: 'users', tableName: 'activity_logs' };
+
+    // Enforce lastActivity not in the future
+    await queryInterface.addConstraint(onlineTable, {
       fields: ['lastActivity'],
       type: 'check',
-      where: {
-        lastActivity: {
-          [Sequelize.Op.lte]: Sequelize.fn('NOW')
-        }
-      },
+      where: Sequelize.where(
+        Sequelize.col('lastActivity'),
+        '<=',
+        Sequelize.fn('NOW')
+      ),
       name: 'chk_online_users_last_activity'
     });
 
-    await queryInterface.addConstraint('activity_logs', {
+    // Enforce timestamp not in the future
+    await queryInterface.addConstraint(logsTable, {
       fields: ['timestamp'],
       type: 'check',
-      where: {
-        timestamp: {
-          [Sequelize.Op.lte]: Sequelize.fn('NOW')
-        }
-      },
+      where: Sequelize.where(
+        Sequelize.col('timestamp'),
+        '<=',
+        Sequelize.fn('NOW')
+      ),
       name: 'chk_activity_logs_timestamp'
     });
 
-    await queryInterface.addConstraint('activity_logs', {
+    // Enforce duration non-negative
+    await queryInterface.addConstraint(logsTable, {
       fields: ['duration'],
       type: 'check',
-      where: {
-        duration: {
-          [Sequelize.Op.gte]: 0
-        }
-      },
+      where: Sequelize.where(
+        Sequelize.col('duration'),
+        '>=',
+        0
+      ),
       name: 'chk_activity_logs_duration'
     });
 
-    // Add unique constraint to prevent duplicate active sessions
-    await queryInterface.addConstraint('online_users', {
+    // Prevent duplicate active sessions per user
+    await queryInterface.addConstraint(onlineTable, {
       fields: ['userId', 'sessionId'],
       type: 'unique',
       name: 'unique_user_session'
@@ -45,10 +51,13 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
+    const onlineTable = { schema: 'users', tableName: 'online_users' };
+    const logsTable   = { schema: 'users', tableName: 'activity_logs' };
+
     // Remove constraints
-    await queryInterface.removeConstraint('online_users', 'chk_online_users_last_activity');
-    await queryInterface.removeConstraint('activity_logs', 'chk_activity_logs_timestamp');
-    await queryInterface.removeConstraint('activity_logs', 'chk_activity_logs_duration');
-    await queryInterface.removeConstraint('online_users', 'unique_user_session');
+    await queryInterface.removeConstraint(onlineTable, 'chk_online_users_last_activity');
+    await queryInterface.removeConstraint(logsTable,   'chk_activity_logs_timestamp');
+    await queryInterface.removeConstraint(logsTable,   'chk_activity_logs_duration');
+    await queryInterface.removeConstraint(onlineTable, 'unique_user_session');
   }
 };

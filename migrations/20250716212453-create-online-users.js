@@ -2,108 +2,100 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('online_users', {
-      id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
-        primaryKey: true,
-        allowNull: false
-      },
-      userId: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'users', // Make sure this matches your users table name
-          key: 'id'
+    await queryInterface.sequelize.query(
+      `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`
+    );
+    // Create table in 'users' schema
+    await queryInterface.createTable(
+      { schema: 'users', tableName: 'online_users' },
+      {
+        uuid: {
+          type: Sequelize.UUID,
+          defaultValue: Sequelize.UUIDV4,
+          primaryKey: true,
+          allowNull: false
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      sessionId: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      socketId: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: true
-      },
-      ipAddress: {
-        type: Sequelize.STRING(45), // IPv6 support
-        allowNull: true
-      },
-      userAgent: {
-        type: Sequelize.TEXT,
-        allowNull: true
-      },
-      currentPage: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      status: {
-        type: Sequelize.ENUM('online', 'away', 'offline'),
-        defaultValue: 'online',
-        allowNull: false
-      },
-      lastActivity: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-        allowNull: false
-      },
-      connectedAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-        allowNull: false
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW
+        userId: {
+          type: Sequelize.UUID,
+          allowNull: false,
+          references: {
+            model: { schema: 'users', tableName: 'Users' },
+            key: 'uuid'
+          },
+          onUpdate: 'CASCADE',
+          onDelete: 'CASCADE'
+        },
+        sessionId: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          unique: true
+        },
+        socketId: {
+          type: Sequelize.STRING,
+          allowNull: true,
+          unique: true
+        },
+        ipAddress: {
+          type: Sequelize.STRING(45),
+          allowNull: true
+        },
+        userAgent: {
+          type: Sequelize.TEXT,
+          allowNull: true
+        },
+        currentPage: {
+          type: Sequelize.STRING,
+          allowNull: true
+        },
+        status: {
+          type: Sequelize.ENUM('online', 'away', 'offline'),
+          allowNull: false,
+          defaultValue: 'online'
+        },
+        lastActivity: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.NOW
+        },
+        connectedAt: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.NOW
+        },
+        createdAt: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.NOW
+        },
+        updatedAt: { // FIXED: was "updatedat"
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.NOW
+        }
       }
-    });
+    );
 
-    // Add indexes for better performance
-    await queryInterface.addIndex('online_users', ['userId'], {
-      name: 'idx_online_users_user_id'
-    });
-
-    await queryInterface.addIndex('online_users', ['sessionId'], {
-      name: 'idx_online_users_session_id'
-    });
-
-    await queryInterface.addIndex('online_users', ['socketId'], {
-      name: 'idx_online_users_socket_id'
-    });
-
-    await queryInterface.addIndex('online_users', ['lastActivity'], {
-      name: 'idx_online_users_last_activity'
-    });
-
-    await queryInterface.addIndex('online_users', ['status'], {
-      name: 'idx_online_users_status'
-    });
-
-    await queryInterface.addIndex('online_users', ['userId', 'status'], {
-      name: 'idx_online_users_user_status'
-    });
+    // Add indexes specifying the same schema
+    const tableRef = { schema: 'users', tableName: 'online_users' };
+    await queryInterface.addIndex(tableRef, ['userId'], { name: 'idx_online_users_user_id' });
+    await queryInterface.addIndex(tableRef, ['sessionId'], { name: 'idx_online_users_session_id' });
+    await queryInterface.addIndex(tableRef, ['socketId'], { name: 'idx_online_users_socket_id' });
+    await queryInterface.addIndex(tableRef, ['lastActivity'], { name: 'idx_online_users_last_activity' });
+    await queryInterface.addIndex(tableRef, ['status'], { name: 'idx_online_users_status' });
+    await queryInterface.addIndex(tableRef, ['userId', 'status'], { name: 'idx_online_users_user_status' });
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Remove indexes first
-    await queryInterface.removeIndex('online_users', 'idx_online_users_user_id');
-    await queryInterface.removeIndex('online_users', 'idx_online_users_session_id');
-    await queryInterface.removeIndex('online_users', 'idx_online_users_socket_id');
-    await queryInterface.removeIndex('online_users', 'idx_online_users_last_activity');
-    await queryInterface.removeIndex('online_users', 'idx_online_users_status');
-    await queryInterface.removeIndex('online_users', 'idx_online_users_user_status');
+    const tableRef = { schema: 'users', tableName: 'online_users' };
+    // Remove indexes
+    await queryInterface.removeIndex(tableRef, 'idx_online_users_user_id');
+    await queryInterface.removeIndex(tableRef, 'idx_online_users_session_id');
+    await queryInterface.removeIndex(tableRef, 'idx_online_users_socket_id');
+    await queryInterface.removeIndex(tableRef, 'idx_online_users_last_activity');
+    await queryInterface.removeIndex(tableRef, 'idx_online_users_status');
+    await queryInterface.removeIndex(tableRef, 'idx_online_users_user_status');
 
-    // Drop the table
-    await queryInterface.dropTable('online_users');
+    // Drop table (this also drops the ENUM type in Postgres automatically)
+    await queryInterface.dropTable(tableRef);
   }
 };

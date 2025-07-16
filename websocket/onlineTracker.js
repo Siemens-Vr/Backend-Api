@@ -23,7 +23,7 @@ class OnlineTracker {
         return false;
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.SECRET_KEY);
       info.req.user = decoded;
       return true;
     } catch (error) {
@@ -142,7 +142,7 @@ class OnlineTracker {
         include: [{
           model: User,
           as: 'user',
-          attributes: ['id', 'uuid', 'email', 'firstName', 'lastName', 'role']
+          attributes: ['uuid', 'email', 'firstName', 'lastName', 'role']
         }],
         order: [['lastActivity', 'DESC']]
       });

@@ -2,93 +2,99 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const ActivityLog = sequelize.define('ActivityLog', {
-    id: {
+    uuid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+      allowNull: false
     },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'Users',
-        key: 'id'
+        model: { schema: 'users', tableName: 'Users' },
+        key: 'uuid'
       }
     },
     sessionId: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     action: {
       type: DataTypes.STRING,
-      allowNull: false, // e.g., 'login', 'logout', 'create_user', 'update_profile', etc.
+      allowNull: false
     },
     resource: {
       type: DataTypes.STRING,
-      allowNull: true, // e.g., 'user', 'equipment', 'staff', etc.
+      allowNull: true
     },
     resourceId: {
       type: DataTypes.STRING,
-      allowNull: true, // ID of the resource being acted upon
+      allowNull: true
     },
     method: {
-      type: DataTypes.STRING,
-      allowNull: true, // HTTP method (GET, POST, PUT, DELETE)
+      type: DataTypes.STRING(10),
+      allowNull: true
     },
     endpoint: {
       type: DataTypes.STRING,
-      allowNull: true, // API endpoint
+      allowNull: true
     },
     details: {
       type: DataTypes.JSON,
-      allowNull: true, // Additional details about the action
+      allowNull: true
     },
     ipAddress: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      type: DataTypes.STRING(45),
+      allowNull: true
     },
     userAgent: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      allowNull: true
     },
     duration: {
       type: DataTypes.INTEGER,
-      allowNull: true, // Duration in milliseconds
+      allowNull: true,
+      validate: {
+        min: 0
+      }
     },
     success: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true,
+      allowNull: false,
+      defaultValue: true
     },
     errorMessage: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      allowNull: true
     },
     timestamp: {
       type: DataTypes.DATE,
+      allowNull: false,
       defaultValue: DataTypes.NOW,
-    },
+      validate: {
+        isBeforeNow(value) {
+          if (new Date(value) > new Date()) {
+            throw new Error('timestamp cannot be in the future');
+          }
+        }
+      }
+    }
   }, {
+    schema: 'users',
     tableName: 'activity_logs',
     timestamps: true,
     indexes: [
-      {
-        fields: ['userId']
-      },
-      {
-        fields: ['sessionId']
-      },
-      {
-        fields: ['action']
-      },
-      {
-        fields: ['resource']
-      },
-      {
-        fields: ['timestamp']
-      },
-      {
-        fields: ['userId', 'timestamp']
-      }
+      { fields: ['userId'] },
+      { fields: ['sessionId'] },
+      { fields: ['action'] },
+      { fields: ['resource'] },
+      { fields: ['timestamp'] },
+      { fields: ['success'] },
+      { fields: ['userId', 'timestamp'] },
+      { fields: ['action', 'timestamp'] },
+      { fields: ['resource', 'timestamp'] },
+      { fields: ['userId', 'action'] }
     ]
   });
 

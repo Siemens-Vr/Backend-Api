@@ -6,6 +6,6 @@ const router = express.Router()
 
 router.get('/:uuid' , get_cost_categories_table )
 router.post('/:uuid', create_cost_categories_table)
-// router.put('/:uuid', updateCost_categories)
+router.put('/:uuid', updateCost_categories)
 
 module.exports = router

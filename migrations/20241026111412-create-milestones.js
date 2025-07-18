@@ -18,13 +18,10 @@ module.exports = {
       no:{
         allowNull: false,
         type: Sequelize.INTEGER,
-        
-
       },
       title: {
         type: Sequelize.STRING,
         allowNull: false,
-      
       },
       description: {
         type: Sequelize.STRING,
@@ -52,10 +49,31 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
+      createdBy: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: { schema: 'users', tableName: 'Users' }, 
+          key: 'uuid'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      updatedBy: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: { schema: 'users', tableName: 'Users' }, 
+          key: 'uuid'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
+      },
+ 
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,

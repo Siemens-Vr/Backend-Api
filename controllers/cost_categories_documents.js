@@ -4,8 +4,6 @@ const {Cost_cat_entries_files,Cost_cat_entries_folders,Cost_category_table} = re
 
 module.exports.getFolders = async (req, res) => {
     const { uuid } = req.params;
-  
- 
     if (!uuid) {
       return res.status(400).json({ 
         error: 'UUID parameter is required' 
@@ -71,9 +69,12 @@ module.exports.createFolders =async(req,res) =>{
     const cost_category_entry_id = req.params.uuid
     const {folderName} =req.body
 
-    console.log(folderName, cost_category_entry_id)
+    // console.log(folderName, cost_category_entry_id)
     try{
-        const folder = await Cost_cat_entries_folders.create({folderName , cost_category_entry_id})
+        const folder = await Cost_cat_entries_folders.create(
+          { folderName , cost_category_entry_id },
+          { userId:req.user.uuid }
+        )
 
         res.status(200).json(folder)
 
@@ -106,7 +107,9 @@ module.exports.updateFolder = async (req, res) => {
       // Update the folder
       const updatedFolder = await folder.update({
         folderName: folderName.trim()
-      });
+      },
+    { userId:req.user.uuid }
+  );
   
       console.log('Folder updated successfully:', updatedFolder.uuid);
       
@@ -166,7 +169,9 @@ module.exports.createFiles = async (req, res) => {
         cost_category_folder_id: cost_category_folder_id,
         path: file.path,
         name: file.filename,
-      });
+      },
+      { userId:req.user.uuid }
+    );
   
       console.log('File uploaded successfully:', newFile.uuid);
       return res

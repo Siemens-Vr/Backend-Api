@@ -52,10 +52,31 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      createdAt: {
+       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      createdBy: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: { schema: 'users', tableName: 'Users' }, // adjust schema/table name as needed
+          key: 'uuid'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
+      },
+      updatedBy: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: { schema: 'users', tableName: 'Users' }, // adjust schema/table name as needed
+          key: 'uuid'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
+      },
+ 
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,

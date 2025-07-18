@@ -3,7 +3,7 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Cost_category_table extends Model {
-    static associate({ Milestone, Document, Cost_categories }) {
+    static associate({ Milestone, Document,User, Cost_categories }) {
       // this.belongsTo(Milestone, {
       //   foreignKey: 'milestoneId',
       //   as: 'milestone',
@@ -13,10 +13,14 @@ module.exports = (sequelize, DataTypes) => {
         as: 'cost_category_entries',
       });
 
-      // this.hasMany(Document, {
-      //   foreignKey: 'outputId',
-      //   as: 'documents',
-      // });
+      this.belongsTo(User, {
+        foreignKey: 'createdBy',
+        as: 'creator',
+      });
+      this.belongsTo(User, {
+        foreignKey: 'updatedBy',
+        as: 'updater',
+      });
       
     }
 
@@ -43,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     total_amount: {
-      type: DataTypes.DECIMAL(10, 2),  // up to 10 digits total, 2 after the decimal
+      type: DataTypes.DECIMAL(20, 2),  
       allowNull: false,
       defaultValue: 0.00,
     },
@@ -57,6 +61,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE', 
       onUpdate: 'CASCADE',
+    },
+        createdBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    updatedBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
     },
 
     createdAt: {
@@ -73,6 +85,27 @@ module.exports = (sequelize, DataTypes) => {
     tableName:'Cost_category_table',
     modelName: 'Cost_category_table',
     schema: 'projects',
+        hooks: {
+      beforeValidate: (category_table, options) => {
+        console.log('beforeValidate hook called');
+        console.log('userId from options:', options.userId);
+        
+        if (options.userId) {
+          // For create operations, set both fields
+          if (category_table.isNewRecord) {
+            category_table.createdBy = options.userId;
+            category_table.updatedBy = options.userId;
+            console.log('Set createdBy and updatedBy to:', options.userId);
+          } else {
+            // For update operations, only set updatedBy
+            category_table.updatedBy = options.userId;
+            console.log('Set updatedBy to:', options.userId);
+          }
+        } else {
+          console.log('No userId in options!');
+        }
+      }
+    }
   });
 
   return  Cost_category_table;

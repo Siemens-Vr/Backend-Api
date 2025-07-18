@@ -254,14 +254,8 @@ const bulkGetOutputs = async (req, res) => {
     });
   }
 };
-
-
-
-
-
 // Create a new Output
 const createOutput = async (req, res) => {
-  console.log(req.body)
   const {milestoneId} = req.params
   const fileArray = req.files?.output;
   const file = fileArray?.[0];
@@ -282,7 +276,10 @@ const createOutput = async (req, res) => {
       document_path: file.path,
       milestoneId 
     
-    });
+    },
+  {
+    userId: req.user.uuid
+  });
 
 
     res.status(201).json(output);
@@ -296,8 +293,16 @@ const createOutput = async (req, res) => {
 const getAllOutputs = async (req, res) => {
   const {milestoneId} = req.params
   try {
-    const outputs = await Output.findAll({where : {milestoneId},order:[['no', 'ASC']]});
-    res.status(200).json(outputs);
+      const { data: outputs, count } = await ArchiveService.getActiveRecords(
+      Output,
+      whereClause = {milestoneId},
+      {
+        include: [ /* …eager loads… */ ],
+        order: [['no', 'ASC'] ]
+      }
+    );
+    //  Return the projects
+    return res.json({ success: true, count, outputs });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -371,7 +376,9 @@ const updateOutputById = async (req, res) => {
     }
 
     // Update the output
-    await output.update(updateData);
+    await output.update(updateData,  {
+    userId: req.user.uuid
+  });
     
     res.status(200).json({
       ...output.toJSON(),

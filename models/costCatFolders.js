@@ -15,6 +15,15 @@ module.exports = (sequelize) => {
         foreignKey: 'cost_category_folder_id',
         as: 'files',
       });
+      this.belongsTo(models.User, {
+        foreignKey: 'createdBy',
+        as: 'creator',
+      });
+      this.belongsTo(models.User, {
+        foreignKey: 'updatedBy',
+        as: 'updater',
+      });
+      
     }
   }
 
@@ -46,6 +55,14 @@ module.exports = (sequelize) => {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
+              createdBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    updatedBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     },
     {
       sequelize,
@@ -54,6 +71,27 @@ module.exports = (sequelize) => {
       schema:         'projects',
       timestamps:     true,
       freezeTableName: true,
+      hooks: {
+      beforeValidate: (folder, options) => {
+        console.log('beforeValidate hook called');
+        console.log('userId from options:', options.userId);
+        
+        if (options.userId) {
+          // For create operations, set both fields
+          if (folder.isNewRecord) {
+            folder.createdBy = options.userId;
+            folder.updatedBy = options.userId;
+            console.log('Set createdBy and updatedBy to:', options.userId);
+          } else {
+            // For update operations, only set updatedBy
+            folder.updatedBy = options.userId;
+            console.log('Set updatedBy to:', options.userId);
+          }
+        } else {
+          console.log('No userId in options!');
+        }
+      }
+    }
     }
   );
 

@@ -6,12 +6,13 @@ const {ArchiveService} = require('../services/auditTrail')
 module.exports.createMilestone = async (req, res) => {
   const {projectId} = req.params
   try {
-    const {  no,
+    const {  
+      no,
       title,
       description,
       implementation_startDate,
       implementation_endDate,
-       status } = req.body;
+      status } = req.body;
 
     const milestone = await Milestone.create({
       no,
@@ -21,6 +22,8 @@ module.exports.createMilestone = async (req, res) => {
       implementation_endDate,
       status,
       projectId
+    },{
+      userId:req.user.uuid
     });
 
     res.status(201).json({ message: "Milestone created successfully", milestone });
@@ -33,13 +36,16 @@ module.exports.createMilestone = async (req, res) => {
 module.exports.getAllMilestones = async (req, res) => {
   const {projectId} = req.params
   try {
-    const milestones = await Milestone.findAll({
-      where: { projectId },
-      order: [['no', 'DESC']]
-    });
-    
-
-    res.status(200).json(milestones);
+    const { data: milestones, count } = await ArchiveService.getActiveRecords(
+      Milestone,
+      whereClause = {projectId},
+      {
+        include: [ /* …eager loads… */ ],
+        order: [['no', 'ASC'] ]
+      }
+    );
+    //  Return the projects
+    return res.json({ success: true, count, milestones });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch milestones", error:error.errors[0].message});
   }
@@ -73,8 +79,7 @@ module.exports.updateMilestone = async (req, res) => {
       description,
       implementation_startDate,
       implementation_endDate,
-      status,
-      projectId  // ADD: Extract projectId from request body
+      status  
     } = req.body;
 
     const milestone = await Milestone.findOne({ where: { uuid } });
@@ -94,7 +99,7 @@ module.exports.updateMilestone = async (req, res) => {
     if (status !== undefined) updateData.status = status;
    
 
-    await milestone.update(updateData);
+    await milestone.update(updateData, {   userId:req.user.uuid});
 
     res.status(200).json({ message: "Milestone updated successfully", milestone });
   } catch (error) {

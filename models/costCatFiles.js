@@ -17,6 +17,15 @@ module.exports = (sequelize) => {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       });
+      this.belongsTo(models.User, {
+        foreignKey: 'createdBy',
+        as: 'creator',
+      });
+      this.belongsTo(models.User, {
+        foreignKey: 'updatedBy',
+        as: 'updater',
+      });
+      
     }
   }
 
@@ -61,6 +70,14 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+        createdBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    updatedBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     },
     {
       sequelize,
@@ -69,6 +86,27 @@ module.exports = (sequelize) => {
       schema:         'projects',
       timestamps:     true,
       freezeTableName: true,
+      hooks: {
+      beforeValidate: (file, options) => {
+        console.log('beforeValidate hook called');
+        console.log('userId from options:', options.userId);
+        
+        if (options.userId) {
+          // For create operations, set both fields
+          if (file.isNewRecord) {
+            file.createdBy = options.userId;
+            file.updatedBy = options.userId;
+            console.log('Set createdBy and updatedBy to:', options.userId);
+          } else {
+            // For update operations, only set updatedBy
+            file.updatedBy = options.userId;
+            console.log('Set updatedBy to:', options.userId);
+          }
+        } else {
+          console.log('No userId in options!');
+        }
+      }
+    }
     }
   );
 

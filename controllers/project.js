@@ -3,8 +3,6 @@ const path = require('path');
 const {ArchiveService}= require('../services/auditTrail')
 
   module.exports.createProject=async (req,res)=> {
-
-   
     const {
       project_id,
       title,
@@ -16,6 +14,8 @@ const {ArchiveService}= require('../services/auditTrail')
       implementation_endDate
     
     } = req.body
+
+    console.log(req.user.uuid)
     try {
       const newProject=await Project.create({
         project_id,
@@ -25,7 +25,10 @@ const {ArchiveService}= require('../services/auditTrail')
         total_value,
         approved_funding,
         implementation_startDate,
-        implementation_endDate
+        implementation_endDate,
+        
+      },{
+        userId:req.user.uuid
       });
 
       //Send success response
@@ -61,36 +64,6 @@ module.exports.getAllProjects = async (req, res) => {
   }
 };
 
-
-
-// Module to getProjectById
-// module.exports.getProjectById = async (req, res) => {
-//   const { uuid } = req.params;
-
-//   try {
-//     const project = await Project.findOne({
-//       where: { uuid },
-//       include: [{
-//         model: Milestone,
-//         as: 'milestones',
-//         separate: true,
-//         order: [['no', 'ASC']],
-//         required: false,
-//       }],
-//     });
-
-//     if (!project) {
-//       return res.status(404).json({ message: 'Project not found' });
-//     }
-
-//     res.status(200).json(project);
-//   } catch (error) {
-//     res.status(500).json({
-//       message: 'Failed to retrieve project',
-//       error: error.message
-//     });
-//   }
-// };
 
 module.exports.getProjectById = async (req, res) => {
   const uuid = req.params.uuid;
@@ -169,8 +142,6 @@ module.exports.updateProject = async (req, res) => {
     }
 
 
-
-    // 3. Build an “updates” object with only the supplied fields
     const updates = {};
     if (title                     !== undefined) updates.title                     = title.trim();
     if (type                      !== undefined) updates.type                      = type.trim();
@@ -181,7 +152,9 @@ module.exports.updateProject = async (req, res) => {
     if (implementation_endDate    !== undefined) updates.implementation_endDate    = implementation_endDate;
 
     // 4. Perform the update
-    await project.update(updates);
+    await project.update(updates, {
+      userId: req.user.uuid
+    });
 
     // 5. Return the updated record
     return res.status(200).json({

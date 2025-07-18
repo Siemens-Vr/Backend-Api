@@ -3,7 +3,7 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Project extends Model {
-    static associate({ Assignee, Milestone, Document }) {
+    static associate({ Assignee, Milestone, Document, User }) {
       this.hasMany(Assignee, {
         foreignKey: 'projectId',
         as: 'assignees',
@@ -15,6 +15,16 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(Document, {
         foreignKey: 'projectId',
         as: 'documents',
+      });
+      
+      // Add associations for createdBy and updatedBy
+      this.belongsTo(User, {
+        foreignKey: 'createdBy',
+        as: 'creator',
+      });
+      this.belongsTo(User, {
+        foreignKey: 'updatedBy',
+        as: 'updater',
       });
     }
   }
@@ -63,6 +73,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    createdBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    updatedBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE,
@@ -75,7 +93,29 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Project',
     schema: 'projects',
-    tableName: 'Projects', // ensure table name matches migration
+    tableName: 'Projects',
+     hooks: {
+      beforeValidate: (project, options) => {
+        console.log('beforeValidate hook called');
+        console.log('userId from options:', options.userId);
+        
+        if (options.userId) {
+          // For create operations, set both fields
+          if (project.isNewRecord) {
+            project.createdBy = options.userId;
+            project.updatedBy = options.userId;
+            console.log('Set createdBy and updatedBy to:', options.userId);
+          } else {
+            // For update operations, only set updatedBy
+            project.updatedBy = options.userId;
+            console.log('Set updatedBy to:', options.userId);
+          }
+        } else {
+          console.log('No userId in options!');
+        }
+      }
+    }
+
   });
 
   return Project;

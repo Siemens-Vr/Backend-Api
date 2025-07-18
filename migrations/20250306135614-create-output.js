@@ -1,4 +1,6 @@
 'use strict';
+const { Sequelize, DataTypes } = require('sequelize');
+
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -61,15 +63,33 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
+        createdBy: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: { schema: 'users', tableName: 'Users' }, 
+          key: 'uuid'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()'),
+      },
+      updatedBy: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: { schema: 'users', tableName: 'Users' }, 
+          key: 'uuid'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()'),
       },
     });
   },

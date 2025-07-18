@@ -3,7 +3,7 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Milestone extends Model {
-    static associate({ Project, Output }) {
+    static associate({ Project, Output, User }) {
       this.belongsTo(Project, {
         foreignKey: 'projectId',
         as: 'project',
@@ -14,6 +14,15 @@ module.exports = (sequelize, DataTypes) => {
         as: 'outputs',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+      });
+
+      this.belongsTo(User, {
+        foreignKey: 'createdBy',
+        as: 'creator',
+      });
+      this.belongsTo(User, {
+        foreignKey: 'updatedBy',
+        as: 'updater',
       });
       
        
@@ -57,6 +66,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    createdBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    updatedBy: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE,
@@ -69,6 +86,27 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Milestone',
     schema: 'projects',
+    hooks: {
+      beforeValidate: (milestone, options) => {
+        console.log('beforeValidate hook called');
+        console.log('userId from options:', options.userId);
+        
+        if (options.userId) {
+          // For create operations, set both fields
+          if (milestone.isNewRecord) {
+            milestone.createdBy = options.userId;
+            milestone.updatedBy = options.userId;
+            console.log('Set createdBy and updatedBy to:', options.userId);
+          } else {
+            // For update operations, only set updatedBy
+            milestone.updatedBy = options.userId;
+            console.log('Set updatedBy to:', options.userId);
+          }
+        } else {
+          console.log('No userId in options!');
+        }
+      }
+    }
   });
 
   return Milestone;

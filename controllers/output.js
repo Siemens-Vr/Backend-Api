@@ -386,6 +386,42 @@ const updateOutputById = async (req, res) => {
   }
 };
 
+//approving 
+const approveOutput = async (req, res) => {
+  try {
+    const  uuid  = req.params.id;
+    
+    // Find the output by UUID
+    const output = await Output.findOne({ where: { uuid } });
+    if (!output) {
+      return res.status(404).json({ message: 'Output not found' });
+    }
+
+    // Check if already approved (optional)
+    if (output.is_approved) {
+      return res.status(400).json({ message: 'Output is already approved' });
+    }
+
+    // Update the output to approved
+    await output.update({ 
+      is_approved: true,
+      // approved_at: new Date(), 
+      // approved_by: req.user?.uuid 
+    });
+    
+    res.status(200).json({
+      message: 'Output approved successfully',
+      output: output.toJSON()
+    });
+    
+  } catch (error) {
+    console.error('Error approving output:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to approve output'
+    });
+  }
+};
+
 const archiveOutputById = async (req, res) => {
   const { id } = req.params;
   const { reason } = req.body;
@@ -446,5 +482,6 @@ module.exports = {
   archiveOutputById,
   deleteOutputById,
   bulkGetOutputs,bulkEditOutputs,
-  bulkCreateOutputs
+  bulkCreateOutputs,
+  approveOutput
 };

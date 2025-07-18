@@ -8,7 +8,8 @@ const {
   archiveOutputById,
   bulkCreateOutputs,
   bulkEditOutputs,
-  bulkGetOutputs
+  bulkGetOutputs,
+  approveOutput
 } = require('../controllers/output');
 const {upload} = require('../middleware/fileUploadMiddleware');
 
@@ -23,7 +24,7 @@ router.get('/:milestoneId', getAllOutputs);
 router.get('/single/:id', getOutputById);
 router.put('/update/:id', upload, updateOutputById);
 router.post('/:id/archive', archiveOutputById);
-
+router.post('/approve/:id', approveOutput )
 // router.delete('/milestones/:id', deleteOutputById);
 
 module.exports = router;

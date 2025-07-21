@@ -15,7 +15,7 @@ const {ArchiveService}= require('../services/auditTrail')
     
     } = req.body
 
-    console.log(req.user.uuid)
+
     try {
       const newProject=await Project.create({
         project_id,

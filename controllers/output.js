@@ -1,4 +1,4 @@
-const { Output , Milestone } = require('../models');
+const { Output , Milestone , UsersNotification} = require('../models');
 const {ArchiveService} = require('../services/auditTrail')
 
 
@@ -429,6 +429,40 @@ const approveOutput = async (req, res) => {
   }
 };
 
+const rejectOutput =async (req, res) =>{
+  console.log(req.body)
+   try {
+
+    const outputId = req.params.id;
+    const { createdBy, reason } = req.body;      
+    const actingUserId = req.user.uuid;     
+
+
+
+    // 3) Create a notification record
+    await UsersNotification.create({
+      outputId,           // uuid of the output
+      userId:createdBy,             // the original creator (who should be notified)
+      message: reason,    // the rejection reason
+      isRead: false,
+      createdBy: actingUserId,
+      updatedBy: actingUserId
+    });
+
+    // 4) Reply success
+    res.status(200).json({
+      success: true,
+      message: 'Output rejected and notification sent.'
+    });
+  } catch (error) {
+    console.error('Error rejecting output:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to reject output'
+    });
+  }
+  
+}
+
 const archiveOutputById = async (req, res) => {
   const { id } = req.params;
   const { reason } = req.body;
@@ -451,6 +485,8 @@ const archiveOutputById = async (req, res) => {
     });
   }
 };
+
+
 
 // Soft Delete Output
 const deleteOutputById = async (req, res) => {
@@ -490,5 +526,6 @@ module.exports = {
   deleteOutputById,
   bulkGetOutputs,bulkEditOutputs,
   bulkCreateOutputs,
-  approveOutput
+  approveOutput,
+  rejectOutput
 };

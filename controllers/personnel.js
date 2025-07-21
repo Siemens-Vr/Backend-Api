@@ -4,7 +4,7 @@ const { Personnel, User, Project } = require('../models');
 module.exports.create = async (req, res) => {
   const projectId = req.params.uuid;
   const {
-    userId,
+    staffUuid,
     role,
     responsibilities,
     startDate,
@@ -18,7 +18,8 @@ module.exports.create = async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
-
+   
+    const userId = staffUuid
     // Check if user exists
     const user = await User.findByPk(userId);
     if (!user) {

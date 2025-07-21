@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const { getNotificationRead, getNotification, getUnreadNotification } = require('../controllers/user_notification');
+
 const {
   createOutput,
   getAllOutputs,
@@ -9,7 +11,8 @@ const {
   bulkCreateOutputs,
   bulkEditOutputs,
   bulkGetOutputs,
-  approveOutput
+  approveOutput,
+  rejectOutput
 } = require('../controllers/output');
 const {upload} = require('../middleware/fileUploadMiddleware');
 
@@ -25,6 +28,10 @@ router.get('/single/:id', getOutputById);
 router.put('/update/:id', upload, updateOutputById);
 router.post('/:id/archive', archiveOutputById);
 router.post('/approve/:id', approveOutput )
+router.put('/reject/:id', rejectOutput )
+
+router.get('/users/notifications', getNotification )
+
 // router.delete('/milestones/:id', deleteOutputById);
 
 module.exports = router;

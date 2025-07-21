@@ -40,7 +40,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     role: {
       type: DataTypes.ENUM(
-        'Project Manager', 'Team Lead', 'Developer', 
+
+
+
         'Designer', 'Analyst', 'Tester', 'Stakeholder',
         'Client', 'Consultant'
       ),

@@ -1,4 +1,4 @@
-const { UsersNotification } = require('../models');
+const { UsersNotification, Output } = require('../models');
 
 
 module.exports.getUnreadNotification =  async (req, res) => {
@@ -16,16 +16,21 @@ module.exports.getUnreadNotification =  async (req, res) => {
 };
 module.exports.getNotification =  async (req, res) => {
      const userId = req.user.uuid
-     console.log("Getting users notifications \\\\\\\\\\\\\\\\")
     try {
       const notifications = await UsersNotification.findAndCountAll({
         where:{userId},
-        order: [['createdAt', 'DESC']]
+       include:[
+        {
+          model:Output,
+          as: 'output',
+        }
+       ]
       });
-      console.log(notifications)
+      // console.log(notifications)
       res.json(notifications);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch notifications' });
+      console.log(error)
+      res.status(500).json({ error: 'Failed to fetch  allnotifications' });
     }
   };
 

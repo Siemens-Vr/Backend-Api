@@ -221,6 +221,8 @@ module.exports.login = async (req, res, next) => {
 
 // Refresh Token
 module.exports.refreshToken = async (req, res) => {
+
+  console.log(req.cookies)
   try {
     // 1. Get the refreshToken from the cookie
     const refreshToken = req.cookies?.refreshToken;

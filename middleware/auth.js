@@ -19,7 +19,7 @@ const authenticateJwt = (req, res, next) => {
 
       return res.status(401).json({ message });
     }
-
+    // console.log(user)
     req.user = user;
     next();
   })(req, res, next);

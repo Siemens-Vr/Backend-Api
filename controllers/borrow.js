@@ -116,9 +116,9 @@ module.exports.postBorrowers = async (req, res) => {
       })
 
       if (!borrowersComponent){
-        res.status(404).json({"message": "borrower not found"})
+        return res.status(404).json({"message": "borrower not found"})
       }
-      res.status(200).json(borrowersComponent)
+      return res.status(200).json(borrowersComponent)
     }catch(error){
       res.status(500).json({"error": error.message})
     }
@@ -160,13 +160,8 @@ module.exports.postBorrowers = async (req, res) => {
 // In the borrow controller
 
 module.exports.getBorrowersByComponent = async (req, res) => {
-  const { error, value } = uuidSchema.validate(req.query.componentUUID);
 
-  if (error) {
-    return res.status(400).json({ message: "Invalid component UUID format" });
-  }
-
-  const componentUUID = value;
+  const componentUUID = req.params.uuid;
 
   try {
     const borrowers = await BorrowedComponent.findAll({

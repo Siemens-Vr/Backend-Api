@@ -1,10 +1,8 @@
 // const { where } = require('sequelize')
 const { Component, ComponentsQuantity, BorrowedComponent, sequelize ,ConditionDetails }  = require('../models')
-const multer = require('multer');
 const XLSX = require('xlsx');
 const { Op, fn, col } = require('sequelize');
 const validateComponent = require('../validation/componentValidation');
-const validateComponentsQuantity = require('../validation/componentsquantityValidation');
 const Joi = require('joi');
 
 
@@ -92,6 +90,7 @@ module.exports.getComponents = async (req, res) => {
 module.exports.updateComponentQuantity = async (req, res) => {
   const componentId = req.params.id;
   const { quantity } = req.body;
+  
 
   const transaction = await sequelize.transaction();
 
@@ -115,7 +114,7 @@ module.exports.updateComponentQuantity = async (req, res) => {
       if (existingQuantity) {
           // Store the previous quantity BEFORE updating
           const previousQuantity = existingQuantity.quantity;
-          const newQuantity = previousQuantity + quantity;
+          const newQuantity = previousQuantity + Number(quantity);
           
           // Update with the new quantity
           await existingQuantity.update({ 
@@ -402,47 +401,6 @@ module.exports.updateComponent = async (req, res) => {
   }
 };
 
-// module.exports.updateComponentQuantity= async (req, res) => {
-//   console.log(req.body)
-//   const { error } = validateComponentsQuantity(req.body);
-//   if (error) {
-//     return res.status(400).json({ error: error.details.map(err => err.message) });
-//   }
-//     const componentId = req.params.id;
-//     const { quantity } = req.body;
-
-//     console.log("Component ID: ", componentId);
-
-//     const transaction = await sequelize.transaction();
-
-//     try {
-//       const component = await Component.findOne({ where: { uuid: componentId }, transaction });
-
-//       if (component) {
-//         await ComponentsQuantity.create(
-//           {
-//             componentUUID: componentId,
-//             quantity,
-//           },
-//           {
-//             transaction
-//           }
-//         );
-
-//         await transaction.commit();
-
-//         res.status(200).json({ message: "Quantity updated successfully" });
-//       } else {
-//         await transaction.rollback();
-//         res.status(404).json({ message: "Component not found" });
-//       }
-//     } catch (error) {
-//       await transaction.rollback();
-//       console.log(error);
-//       res.status(500).json({ message: error.message });
-//     }
-//   },
-
 
 
 
@@ -451,10 +409,11 @@ module.exports.getComponentById = async (req, res)=>{
     try{
         const component = await Component.findOne({where: {uuid: id}})
             if(component){
-                res.status(200).json(component)
+              console.log(component)
+                return res.status(200).json(component)
                 }
-                // res.status(200).json(component)
-            }
+               
+        }
 
     catch(error)
     {
@@ -487,20 +446,7 @@ module.exports.search =async(req, res)=>{
   }
 }
 
-// module.exports.getComponentHistory = async (req, res)=>{
-//   const componentUUID = req.params.id;
 
-//   try{
-//         const history = await ComponentsQuantity.findAll({
-//       where: { componentUUID},
-//         })
-
-//         res.status(200).json(history)
-
-//   }catch(error){
-//     console.log(error)
-//   }
-// }
 
 
 module.exports.getComponentHistory = async (req, res) => {

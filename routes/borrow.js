@@ -9,7 +9,7 @@ borrowRouter.get('/', getBorrowers);
 borrowRouter.post('/', postBorrowers);
 borrowRouter.get('/:id', getBorrowedComponentById);
 borrowRouter.patch('/:id/update', updateBorrowedComponents);
-borrowRouter.get('/', getBorrowersByComponent);
+borrowRouter.get('/:uuid/history', getBorrowersByComponent);
 
 
 
